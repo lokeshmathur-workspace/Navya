@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D1 Volleyball Blueprint</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
+:root {
+  --bg: #0a0c10; --panel: #1a1f2b; --panel2: #222836; --border: #2a3040;
+  --gold: #f0c040; --gold2: #b8922a; --sky: #4a9eff; --sky2: #2a5a99;
+  --coral: #ff6b5b; --coral2: #99352a; --mint: #4ecba0; --mint2: #2a7a5a;
+  --lav: #a088ff; --text: #e8eaf0; --dim: #8892a4; --muted: #4a5568;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:14px; line-height:1.6; }
+.hero { background:linear-gradient(135deg,#0a0c10,#12161e,#0d1520); border-bottom:2px solid var(--gold); padding:28px 24px 20px; }
+.hero-label { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin-bottom:6px; }
+.hero-title { font-family:'Bebas Neue',sans-serif; font-size:38px; letter-spacing:2px; line-height:1; background:linear-gradient(135deg,#fff,var(--gold)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero-sub { color:var(--dim); font-size:13px; margin-top:6px; font-style:italic; }
+.hero-tags { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+.tag { background:rgba(240,192,64,.1); border:1px solid var(--gold2); color:var(--gold); font-size:10px; font-family:'DM Mono',monospace; letter-spacing:1px; padding:3px 10px; border-radius:20px; text-transform:uppercase; }
+.tag.s { background:rgba(74,158,255,.1); border-color:var(--sky2); color:var(--sky); }
+.tag.c { background:rgba(255,107,91,.1); border-color:var(--coral2); color:var(--coral); }
+.tag.m { background:rgba(78,203,160,.1); border-color:var(--mint2); color:var(--mint); }
+.nav { background:#12161e; border-bottom:1px solid var(--border); display:flex; overflow-x:auto; scrollbar-width:none; padding:0 12px; gap:2px; position:sticky; top:0; z-index:100; }
+.nav::-webkit-scrollbar { display:none; }
+.nav-btn { padding:11px 14px; background:none; border:none; border-bottom:2px solid transparent; color:var(--dim); font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; cursor:pointer; white-space:nowrap; transition:all .2s; }
+.nav-btn:hover { color:var(--text); }
+.nav-btn.active { color:var(--gold); border-bottom-color:var(--gold); }
+.content { padding:20px; max-width:860px; margin:0 auto; }
+.section { display:none; }
+.section.active { display:block; animation:fi .3s ease; }
+@keyframes fi { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.sh { margin-bottom:18px; padding-bottom:12px; border-bottom:1px solid var(--border); }
+.st { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:1.5px; }
+.st span { color:var(--gold); }
+.sd { color:var(--dim); font-size:12px; margin-top:3px; }
+.card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px; margin-bottom:12px; }
+.ct { font-weight:700; font-size:12px; letter-spacing:.5px; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.dg{background:var(--gold)} .ds{background:var(--sky)} .dc{background:var(--coral)} .dm{background:var(--mint)} .dl{background:var(--lav)}
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media(max-width:560px){.g2{grid-template-columns:1fr}}
+ul.pl { list-style:none; }
+ul.pl li { padding:4px 0 4px 14px; position:relative; color:var(--dim); font-size:12px; border-bottom:1px solid rgba(255,255,255,.03); }
+ul.pl li:last-child{border-bottom:none}
+ul.pl li::before { content:'▸'; position:absolute; left:0; color:var(--gold); font-size:10px; top:6px; }
+ul.pl li strong { color:var(--text); }
+.hl { border-left:3px solid var(--gold); background:rgba(240,192,64,.06); padding:11px 13px; border-radius:0 8px 8px 0; margin:10px 0; font-size:12px; color:var(--dim); }
+.hl strong { color:var(--gold); }
+.hl.s{border-color:var(--sky);background:rgba(74,158,255,.06)} .hl.s strong{color:var(--sky)}
+.hl.m{border-color:var(--mint);background:rgba(78,203,160,.06)} .hl.m strong{color:var(--mint)}
+.hl.c{border-color:var(--coral);background:rgba(255,107,91,.06)} .hl.c strong{color:var(--coral)}
+.tl { position:relative; padding-left:26px; }
+.tl::before { content:''; position:absolute; left:7px; top:0; bottom:0; width:2px; background:linear-gradient(to bottom,var(--gold),var(--sky),var(--mint),var(--coral)); border-radius:2px; }
+.tli { position:relative; margin-bottom:18px; }
+.tli::before { content:''; position:absolute; left:-22px; top:5px; width:12px; height:12px; border-radius:50%; border:2px solid; background:var(--bg); }
+.tli.g::before{border-color:var(--gold)} .tli.s::before{border-color:var(--sky)} .tli.m::before{border-color:var(--mint)} .tli.c::before{border-color:var(--coral)} .tli.l::before{border-color:var(--lav)}
+.tly { font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:1px; margin-bottom:3px; }
+.tli.g .tly{color:var(--gold)} .tli.s .tly{color:var(--sky)} .tli.m .tly{color:var(--mint)} .tli.c .tly{color:var(--coral)} .tli.l .tly{color:var(--lav)}
+.pillars { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px; }
+@media(max-width:560px){.pillars{grid-template-columns:1fr 1fr}}
+.pill { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:center; }
+.pi { font-size:24px; margin-bottom:5px; }
+.pn { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--text); margin-bottom:3px; }
+.pd { font-size:10px; color:var(--dim); }
+.sched { width:100%; border-collapse:collapse; font-size:11px; }
+.sched th { background:var(--panel2); color:var(--gold); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:1px; text-transform:uppercase; padding:9px 11px; text-align:left; border-bottom:1px solid var(--border); }
+.sched td { padding:8px 11px; border-bottom:1px solid rgba(255,255,255,.03); color:var(--dim); vertical-align:top; }
+.sched td:first-child { color:var(--text); font-weight:600; font-size:10px; white-space:nowrap; }
+.sched tr:hover td{background:rgba(255,255,255,.02)}
+.badge { display:inline-block; padding:2px 7px; border-radius:4px; font-size:10px; font-weight:600; margin:1px; font-family:'DM Mono',monospace; }
+.bv{background:rgba(74,158,255,.15);color:var(--sky)} .bc{background:rgba(240,192,64,.15);color:var(--gold)}
+.br{background:rgba(78,203,160,.15);color:var(--mint)} .bs{background:rgba(160,136,255,.15);color:var(--lav)} .bo{background:rgba(255,107,91,.15);color:var(--coral)}
+.acc { border:1px solid var(--border); border-radius:8px; margin-bottom:7px; overflow:hidden; }
+.ah { padding:11px 14px; background:var(--panel); cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-weight:600; font-size:12px; user-select:none; transition:background .2s; }
+.ah:hover{background:var(--panel2)}
+.arr { font-size:10px; color:var(--muted); transition:transform .2s; }
+.ah.open .arr{transform:rotate(180deg)}
+.ab { display:none; padding:12px 14px; background:#12161e; border-top:1px solid var(--border); }
+.ab.open{display:block;animation:fi .2s ease}
+.tr { display:grid; grid-template-columns:78px 1fr; gap:10px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.03); font-size:12px; }
+.tr:last-child{border-bottom:none}
+.tl2 { color:var(--muted); font-family:'DM Mono',monospace; font-size:10px; padding-top:2px; }
+.ta { color:var(--dim); }
+.ta strong{color:var(--text)}
+.supp-g { display:grid; grid-template-columns:repeat(auto-fill,minmax(185px,1fr)); gap:9px; }
+.sc { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:11px 13px; }
+.sn { font-weight:700; font-size:12px; color:var(--text); margin-bottom:2px; }
+.sw { font-size:10px; font-family:'DM Mono',monospace; color:var(--gold); margin-bottom:4px; }
+.sd2 { font-size:11px; color:var(--dim); }
+.warn { background:rgba(255,107,91,.08); border:1px solid var(--coral2); border-radius:8px; padding:11px 13px; font-size:12px; color:var(--dim); margin-top:9px; }
+.warn strong{color:var(--coral)}
+.nut3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:12px; }
+@media(max-width:560px){.nut3{grid-template-columns:1fr}}
+.nc { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:12px; text-align:center; }
+.nn { font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:1px; }
+.nu { font-size:10px; color:var(--muted); font-family:'DM Mono',monospace; }
+.nl { font-size:11px; color:var(--dim); margin-top:3px; }
+.sb-row { display:flex; align-items:center; gap:9px; margin-bottom:7px; }
+.sbl { font-size:11px; color:var(--dim); width:150px; flex-shrink:0; }
+.sbb { flex:1; height:5px; background:var(--panel2); border-radius:3px; overflow:hidden; }
+.sb { height:100%; border-radius:3px; }
+.sbn { font-size:10px; color:var(--muted); width:85px; text-align:right; font-family:'DM Mono',monospace; }
+.db { background:var(--panel); border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:9px; }
+.dh { background:var(--panel2); padding:7px 13px; font-weight:700; font-size:11px; letter-spacing:.5px; display:flex; justify-content:space-between; align-items:center; }
+.dc2 { padding:9px 13px; }
+.pill2 { display:inline-flex; align-items:center; gap:4px; background:rgba(78,203,160,.12); border:1px solid var(--mint2); color:var(--mint); font-size:10px; font-family:'DM Mono',monospace; padding:2px 9px; border-radius:20px; }
+.pill2::before { content:''; width:5px; height:5px; background:var(--mint); border-radius:50%; animation:p 1.5s infinite; }
+@keyframes p {0%,100%{opacity:1}50%{opacity:.3}}
+.lbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; margin-top:10px; }
+.lbl:first-child{margin-top:0}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="hero-label">⚡ D1 Volleyball Blueprint</div>
+  <div class="hero-title">The Road to Division I</div>
+  <div class="hero-sub">Complete 4-Year Development System · Setter &amp; Libero · Age 14 → College Signing Day</div>
+  <div class="hero-tags">
+    <span class="tag">U15 PSR All-Stars</span>
+    <span class="tag s">Setter Primary</span>
+    <span class="tag c">Libero Secondary</span>
+    <span class="tag m">D1 Target</span>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="show('ov',this)">🏐 Overview</button>
+  <button class="nav-btn" onclick="show('sk',this)">🎯 Skills</button>
+  <button class="nav-btn" onclick="show('co',this)">💪 Conditioning</button>
+  <button class="nav-btn" onclick="show('nu',this)">🥗 Nutrition</button>
+  <button class="nav-btn" onclick="show('me',this)">🧠 Mental</button>
+  <button class="nav-btn" onclick="show('sc',this)">📅 Schedule</button>
+  <button class="nav-btn" onclick="show('re',this)">🏆 D1 Roadmap</button>
+</div>
+
+<div class="content">
+
+<!-- OVERVIEW -->
+<div class="section active" id="sec-ov">
+  <div class="sh"><div class="st">THE <span>MASTER PLAN</span></div><div class="sd">Complete development framework — every pillar, every phase.</div></div>
+
+  <div class="hl"><strong>Coach's Assessment:</strong> At 14 with 2 years experience — already varsity, club-selected, PSR All-Stars shortlisted — she is ahead of the curve. The D1 path is absolutely realistic with disciplined, smart development. The window is open. Now it's about building the whole athlete.</div>
+
+  <div class="pillars">
+    <div class="pill"><div class="pi">🎯</div><div class="pn">Skills</div><div class="pd">Setting mastery + libero depth</div></div>
+    <div class="pill"><div class="pi">💪</div><div class="pn">Conditioning</div><div class="pd">Speed, strength, explosiveness</div></div>
+    <div class="pill"><div class="pi">🥗</div><div class="pn">Fueling</div><div class="pd">Nutrition, hydration, recovery</div></div>
+    <div class="pill"><div class="pi">🧠</div><div class="pn">Mental</div><div class="pd">Mindset, pressure, leadership</div></div>
+    <div class="pill"><div class="pi">📚</div><div class="pn">Academics</div><div class="pd">GPA 3.7+, SAT prep, time mgmt</div></div>
+    <div class="pill"><div class="pi">🏆</div><div class="pn">Recruiting</div><div class="pd">Showcases, film, coach contacts</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dg"></span>THE 4-YEAR PHASES</div>
+    <div class="tl">
+      <div class="tli g">
+        <div class="tly">YEAR 1 · 9TH GRADE (NOW → SUMMER 2027)</div>
+        <ul class="pl">
+          <li><strong>Immediate:</strong> Nail PSR second round + land top A-team club spot</li>
+          <li><strong>Foundation:</strong> Master setting fundamentals, begin libero reads</li>
+          <li><strong>Body:</strong> Bodyweight strength base, mobility, jump training foundation</li>
+          <li><strong>Exposure:</strong> JO Nationals exposure, start collecting tournament film</li>
+          <li><strong>Academic:</strong> Build 4.0 habits now — 9th grade sets the entire GPA trajectory</li>
+        </ul>
+      </div>
+      <div class="tli s">
+        <div class="tly">YEAR 2 · 10TH GRADE (SOPHOMORE)</div>
+        <ul class="pl">
+          <li><strong>Skills:</strong> Ball control mastery, setting tempo variation, libero serve-receive elite level</li>
+          <li><strong>Showcase:</strong> Attend college ID camps, start building coach relationships</li>
+          <li><strong>Strength:</strong> Transition to structured weight room program</li>
+          <li><strong>Recruiting:</strong> Create highlight reel, email D1 coaches, build official prospect profile</li>
+          <li><strong>PSAT:</strong> Take in October — baseline for SAT planning</li>
+        </ul>
+      </div>
+      <div class="tli m">
+        <div class="tly">YEAR 3 · 11TH GRADE (JUNIOR — CRITICAL YEAR)</div>
+        <ul class="pl">
+          <li><strong>Official recruiting opens Sept 1:</strong> D1 coaches can now call directly</li>
+          <li><strong>Showcases:</strong> High-profile JO Nationals + targeted D1 ID camps</li>
+          <li><strong>Leadership:</strong> Be the vocal floor leader on every team</li>
+          <li><strong>SAT/ACT:</strong> Target 1250+ SAT or 27+ ACT</li>
+          <li><strong>Commit:</strong> Goal — verbal commit by end of junior year</li>
+        </ul>
+      </div>
+      <div class="tli c">
+        <div class="tly">YEAR 4 · 12TH GRADE (SENIOR)</div>
+        <ul class="pl">
+          <li><strong>Sign NLI</strong> in November national signing period</li>
+          <li><strong>Maintain eligibility:</strong> GPA, core courses, NCAA Clearinghouse</li>
+          <li><strong>Stay sharp:</strong> Don't coast — incoming freshmen who slack get de-recruited</li>
+          <li><strong>Transition:</strong> Prepare mentally and physically for college training demands</li>
+        </ul>
+      </div>
+      <div class="tli l">
+        <div class="tly">DESTINATION · D1 SIGNING DAY</div>
+        <ul class="pl">
+          <li><strong>Goal:</strong> Earn a D1 volleyball scholarship (partial or full)</li>
+          <li><strong>NCAA eligibility:</strong> 16 core courses, 2.3+ GPA, qualifying test score</li>
+          <li><strong>The player:</strong> Elite setter or libero with documented tournament results</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot ds"></span>IMMEDIATE FOCUS — NEXT 8 WEEKS</div>
+    <div class="g2">
+      <div>
+        <div class="lbl" style="color:var(--sky)">PSR Second Round Prep</div>
+        <ul class="pl">
+          <li>1,000 reps of perfect hand setting daily</li>
+          <li>Back-set accuracy work — 80%+ to target zone</li>
+          <li>Serve-receive passing at 2.3+ average</li>
+          <li>Setter footwork off the pass — 100 reps/day no ball</li>
+          <li>Leadership presence — speak, communicate, direct every play</li>
+        </ul>
+      </div>
+      <div>
+        <div class="lbl" style="color:var(--gold)">Club Tryout Prep</div>
+        <ul class="pl">
+          <li>Film 3 top setters at your level — steal their best habits</li>
+          <li>Quickness drills: first-step reaction, shuffle speed</li>
+          <li>Display IQ — read the block, vary your tempo</li>
+          <li>Work on setter dump + back-set under live pressure</li>
+          <li>Show coachability + hustle — coaches watch attitude first</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<div class="section" id="sec-sk">
+  <div class="sh"><div class="st">VOLLEYBALL <span>SKILLS</span></div><div class="sd">Setting mastery + libero development. Build both — leverage both.</div></div>
+
+  <div class="hl s"><strong>Position Strategy:</strong> At 5'1" she has a real D1 path as a setter — it requires elite ball control and court IQ. The libero path is height-independent and may open more doors. Building BOTH gives her a massive recruiting advantage — she becomes the flexible asset coaches love.</div>
+
+  <div class="card">
+    <div class="ct"><span class="dot ds"></span>SETTER — SKILL PRIORITY PYRAMID</div>
+    <div class="acc"><div class="ah" onclick="ta(this)">🔑 Tier 1 — Non-Negotiable Fundamentals <span class="arr">▼</span></div>
+    <div class="ab"><ul class="pl">
+      <li><strong>Hand Setting Mechanics:</strong> Consistent contact point above forehead, wrist snap, no slop ever. 1,000 wall reps daily.</li>
+      <li><strong>Footwork / Approach:</strong> Beat the pass to the net. Right-foot release, drop step, platform parallel to net. 100 reps without ball.</li>
+      <li><strong>Ball Control Range:</strong> Set from off-net, deep, from bad passes. D1 setters handle anything. Work from difficult zones every practice.</li>
+      <li><strong>Communication:</strong> Call every ball. "Mine" on every free ball. Loud setter = confident team. Coaches hear this at every tryout.</li>
+    </ul></div></div>
+    <div class="acc"><div class="ah" onclick="ta(this)">⚡ Tier 2 — Competitive Edge Skills <span class="arr">▼</span></div>
+    <div class="ab"><ul class="pl">
+      <li><strong>Back Set Disguise:</strong> Front/back sets must look identical until release. Train back-set accuracy to both pins — 70%+ target zone.</li>
+      <li><strong>Tempo Variation:</strong> Quick 1-ball, high 5-ball, shoot set. Learn to run a Go, Slide, 31, Stack. Real offenses confuse blockers.</li>
+      <li><strong>Setter Dump:</strong> 1-contact attack over the block. A smart dump scores 2-3 points per set at this level — train both hands.</li>
+      <li><strong>Pre-Read Decision Making:</strong> Call the play BEFORE the pass arrives. Know where the ball is going before you touch it — film study builds this faster than reps alone.</li>
+      <li><strong>Serve Receive Integration:</strong> If she passes, what is her reset time to the net? Small setters lose here — train this transition speed relentlessly.</li>
+    </ul></div></div>
+    <div class="acc"><div class="ah" onclick="ta(this)">🧠 Tier 3 — IQ &amp; Leadership <span class="arr">▼</span></div>
+    <div class="ab"><ul class="pl">
+      <li><strong>Scouting Awareness:</strong> By sophomore year she should know opponent's block tendencies, weak passers, and preferred attack patterns mid-match.</li>
+      <li><strong>Hitter Management:</strong> Make every hitter feel like the best option. Post-set eye contact. Quick feedback. "I'll get you next ball." Setters are floor generals.</li>
+      <li><strong>Film Study:</strong> 20 min/week — watch D1 setters (Nebraska, Louisville, Stanford). Steal footwork, hand position, tempo variation deliberately.</li>
+    </ul></div></div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dc"></span>LIBERO — PARALLEL DEVELOPMENT TRACK</div>
+    <div class="acc"><div class="ah" onclick="ta(this)">🛡️ Serve Receive — The Non-Negotiable <span class="arr">▼</span></div>
+    <div class="ab"><ul class="pl">
+      <li><strong>Platform mechanics:</strong> Arms together, wrists out, no swing. 500 serve-receive reps per week minimum.</li>
+      <li><strong>Target passing:</strong> Every pass to a 3-foot circle at setter target. Grade yourself: 3=perfect, 2=hittable, 1=sets only, 0=error. Train to 2.5+ average.</li>
+      <li><strong>Float serve specialist:</strong> Most D1 liberos are tested hardest by float serves. Seek coaches with mean floats and get dedicated reps. This is the job separator.</li>
+    </ul></div></div>
+    <div class="acc"><div class="ah" onclick="ta(this)">⚡ Digging &amp; Floor Defense <span class="arr">▼</span></div>
+    <div class="ab"><ul class="pl">
+      <li><strong>Reading the hitter:</strong> Study shoulder angle, approach line, arm swing — train eyes before body movement. Reaction beats running every time.</li>
+      <li><strong>Sprawl and roll technique:</strong> Safe floor work — no knee collapse. 15 min per practice on emergency technique from all angles.</li>
+      <li><strong>Cross-court dig position:</strong> Default deep cross, read line. Liberos who cheat the line get burned. Trust the system, be disciplined.</li>
+      <li><strong>Pursuit range:</strong> Work on chasing balls 8-12 feet from your starting position. Liberos who cover extraordinary ground are irreplaceable at club level.</li>
+    </ul></div></div>
+    <div class="acc"><div class="ah" onclick="ta(this)">🎯 Serving — The Libero Bonus Weapon <span class="arr">▼</span></div>
+    <div class="ab"><ul class="pl">
+      <li><strong>Aggressive float serve:</strong> A libero with a nasty float serve is a massive asset. Train daily — 80%+ in, 60%+ to target zone.</li>
+      <li><strong>Jump float:</strong> By sophomore year, develop jump float. Most disruptive serve at U15-U18 level with no arm speed requirement.</li>
+      <li><strong>Serve zones:</strong> Learn to exploit Zone 1, Zone 5, and seam serves. Target the weak passer, not just "in."</li>
+    </ul></div></div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dm"></span>DAILY SKILL REP TARGETS</div>
+    <div class="sb-row"><div class="sbl">Wall setting (hand quality)</div><div class="sbb"><div class="sb" style="width:100%;background:var(--sky)"></div></div><div class="sbn">1,000 reps/day</div></div>
+    <div class="sb-row"><div class="sbl">Setter footwork (no ball)</div><div class="sbb"><div class="sb" style="width:80%;background:var(--gold)"></div></div><div class="sbn">100 reps/day</div></div>
+    <div class="sb-row"><div class="sbl">Serve-receive passing</div><div class="sbb"><div class="sb" style="width:60%;background:var(--coral)"></div></div><div class="sbn">50+ reps/session</div></div>
+    <div class="sb-row"><div class="sbl">Serving (accuracy targets)</div><div class="sbb"><div class="sb" style="width:50%;background:var(--mint)"></div></div><div class="sbn">30 serves/day</div></div>
+    <div class="sb-row"><div class="sbl">Film review (game IQ)</div><div class="sbb"><div class="sb" style="width:25%;background:var(--lav)"></div></div><div class="sbn">20 min/week</div></div>
+    <div class="hl c" style="margin-top:10px;font-size:11px;"><strong>The 100,000 Rep Rule:</strong> D1 setters have set a ball 100,000+ times before they arrive on campus. Wall setting during film review, during car rides — accumulate every rep possible.</div>
+  </div>
+</div>
+
+<!-- CONDITIONING -->
+<div class="section" id="sec-co">
+  <div class="sh"><div class="st">CONDITIONING <span>&amp; STRENGTH</span></div><div class="sd">Building an explosive, durable athlete — at 14, smart beats heavy every time.</div></div>
+
+  <div class="hl c"><strong>Critical at 14:</strong> No heavy barbell loading yet. Growth plates are still open. Prioritize movement quality, bodyweight mastery, and jump training. The full strength window opens at 15-16 with a proper form foundation already built.</div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dg"></span>PHASE 1 (NOW — AGE 15): MOVEMENT FOUNDATION</div>
+    <div class="g2">
+      <div>
+        <div class="lbl" style="color:var(--gold)">LOWER BODY / EXPLOSIVENESS</div>
+        <ul class="pl">
+          <li><strong>Jump rope:</strong> 10 min daily — single leg, speed. Builds ankle stiffness and coordination foundation.</li>
+          <li><strong>Box jumps (12-18"):</strong> Stick landing, reset, explode. 3×8. Land soft, jump max.</li>
+          <li><strong>Broad jumps:</strong> Max horizontal power. 3×5. Full reset between reps.</li>
+          <li><strong>Lateral shuffle bounds:</strong> 5 yards L/R × 4 sets. Footspeed is everything for both positions.</li>
+          <li><strong>Goblet squat:</strong> Bodyweight or light KB (15-20 lbs). 3×12. Quad/glute/ankle triple threat.</li>
+          <li><strong>Hip hinge / RDL:</strong> Bodyweight → band → 20 lb KB. Hamstring and glute chain.</li>
+          <li><strong>Single-leg balance:</strong> Floor or BOSU. 3×30 sec each leg. Ankle stability = injury prevention.</li>
+        </ul>
+      </div>
+      <div>
+        <div class="lbl" style="color:var(--sky)">UPPER BODY / CORE</div>
+        <ul class="pl">
+          <li><strong>Push-ups (perfect form):</strong> Build to 3×15. Sets shoulder stability baseline every athlete needs.</li>
+          <li><strong>Band pull-aparts:</strong> 3×15 — rotator cuff health. Critical for setters, non-negotiable daily.</li>
+          <li><strong>TRX rows / ring rows:</strong> Upper back pulling strength.</li>
+          <li><strong>Plank progressions:</strong> Front, side, reach-under. 3×35 sec each direction.</li>
+          <li><strong>Dead bug:</strong> Core stability without lumbar stress. 3×10. Learn to brace properly.</li>
+          <li><strong>Pallof press (band):</strong> Anti-rotation core. Setter core stability under live pressure.</li>
+          <li><strong>Cable machine (you have one):</strong> Chop, lift, face pull, lateral raises. Great home tool.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot ds"></span>WEEKLY CONDITIONING STRUCTURE</div>
+    <table class="sched">
+      <thead><tr><th>Day</th><th>Session Focus</th><th>Duration</th></tr></thead>
+      <tbody>
+        <tr><td>Mon</td><td><span class="badge bc">Lower Power</span> Jump training + lateral speed work</td><td>35 min</td></tr>
+        <tr><td>Tue</td><td><span class="badge bc">Upper + Core</span> Push/pull + anti-rotation core</td><td>30 min</td></tr>
+        <tr><td>Wed</td><td><span class="badge br">Active Recovery</span> Mobility, foam roll, light yoga</td><td>20 min</td></tr>
+        <tr><td>Thu</td><td><span class="badge bc">Full Body</span> Compound movements + agility ladder</td><td>40 min</td></tr>
+        <tr><td>Fri</td><td><span class="badge bc">Speed + Agility</span> Cone drills, shuffle, first-step reaction</td><td>25 min</td></tr>
+        <tr><td>Sat</td><td><span class="badge br">Low Intensity</span> Walk, easy bike, or full rest</td><td>Optional</td></tr>
+        <tr><td>Sun</td><td><span class="badge bo">Rest</span> Passive recovery, sleep priority, no guilt</td><td>Rest</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dc"></span>JUMP TRAINING — THE SETTER EQUALIZER</div>
+    <div class="hl" style="margin-bottom:10px;font-size:11px;"><strong>Why this matters:</strong> At 5'1", vertical jump is the great equalizer. Every inch of reach = more setting range, more dump success, more libero range. Vertical jump is trainable — she can realistically gain 4-6 inches with proper programming.</div>
+    <ul class="pl">
+      <li><strong>Depth drops (step off, absorb landing):</strong> Teaches safe landing mechanics before loading. 3×5.</li>
+      <li><strong>Counter-movement jumps:</strong> Full arm swing, max effort vertical. 3×5, full rest between every rep.</li>
+      <li><strong>Approach jump practice:</strong> 3-step and 4-step approach, max vertical every single rep. 4×5.</li>
+      <li><strong>Lateral bound-to-jump:</strong> 2 lateral bounds then vertical. Mimics real game movement for both setter and libero.</li>
+      <li><strong>Ankle stiffness drills:</strong> Pogo jumps, continuous low hops — builds elastic energy return in the Achilles.</li>
+      <li><strong>Track vertical weekly:</strong> Tape mark on wall or Vertec. Log it. Visible progress drives motivation and confirms the program is working.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dm"></span>AGILITY — POSITION-SPECIFIC DRILLS</div>
+    <ul class="pl">
+      <li><strong>5-10-5 shuffle:</strong> Lateral explosion. 6 reps. Time it, track progress every 4 weeks.</li>
+      <li><strong>Box drill (4 corners):</strong> Shuffle → sprint → shuffle → backpedal. Replicates volleyball court movement patterns.</li>
+      <li><strong>Mirror drill:</strong> Follow a partner's random movement. Reacts faster than predictable set patterns.</li>
+      <li><strong>Tennis ball drop reaction:</strong> Partner drops from shoulder height — react and catch before second bounce. Pure first-step speed development.</li>
+      <li><strong>Setter zone footwork:</strong> Run all 6 zones from base, land in ready position, touch the set target. Timed. Track weekly.</li>
+      <li><strong>Pro agility / T-drill:</strong> 2-3x per week. Log times. D1 athletic standards for setters and liberos are sub-4.5 on pro agility.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- NUTRITION -->
+<div class="section" id="sec-nu">
+  <div class="sh"><div class="st">NUTRITION <span>&amp; FUELING</span></div><div class="sd">Performance eating for a growing teenage athlete. Food first, always.</div></div>
+
+  <div class="hl m"><strong>The #1 Rule:</strong> She is 14 and still growing. Nutrition needs to support athletic performance AND normal adolescent development simultaneously. Under-fueling is the single biggest mistake teenage athletes make. Eat enough — this is not the time for restriction.</div>
+
+  <div class="nut3">
+    <div class="nc"><div class="nn" style="color:var(--gold)">1.4–1.7</div><div class="nu">g protein / kg bodyweight / day</div><div class="nl">~75–90g for a ~55 kg athlete</div></div>
+    <div class="nc"><div class="nn" style="color:var(--sky)">55–65%</div><div class="nu">of daily calories</div><div class="nl">Carbs — primary explosive fuel</div></div>
+    <div class="nc"><div class="nn" style="color:var(--mint)">2–2.5L</div><div class="nu">water per day minimum</div><div class="nl">More on training and game days</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dg"></span>GAME DAY / TRAINING DAY FUELING TIMELINE</div>
+    <table class="sched">
+      <thead><tr><th>Timing</th><th>What to Eat</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>3-4 hrs before</td><td>Rice or pasta + chicken or eggs + veggies. Full meal.</td><td>Full glycogen load. Never play on empty.</td></tr>
+        <tr><td>1-1.5 hrs before</td><td>Banana + peanut butter OR granola bar + water</td><td>Top-off carbs, easy to digest, no bloat</td></tr>
+        <tr><td>During (60+ min)</td><td>Water + electrolytes every 20 min. Small banana bite if 90+ min.</td><td>Maintain blood sugar and hydration levels</td></tr>
+        <tr><td>Within 30 min after</td><td>Chocolate milk OR Greek yogurt + fruit OR protein shake + banana</td><td>Recovery window — 3:1 carb:protein ratio</td></tr>
+        <tr><td>1-2 hrs after</td><td>Full balanced meal: protein + complex carbs + vegetables + healthy fat</td><td>Muscle repair, growth, full recovery</td></tr>
+        <tr><td>Before bed</td><td>Cottage cheese, Greek yogurt, or small protein + carb snack</td><td>Overnight muscle protein synthesis</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot ds"></span>DAILY MEAL FRAMEWORK</div>
+    <div class="g2">
+      <div>
+        <div class="lbl" style="color:var(--sky)">BREAKFAST (non-negotiable)</div>
+        <ul class="pl">
+          <li>2-3 whole eggs OR Greek yogurt (protein anchor)</li>
+          <li>Oatmeal + berries OR whole grain toast (carbs)</li>
+          <li>Fruit — vitamins and quick carbs</li>
+          <li>Milk or fortified OJ — calcium and Vitamin D</li>
+        </ul>
+        <div class="lbl" style="color:var(--mint)">LUNCH</div>
+        <ul class="pl">
+          <li>Lean protein (chicken, turkey, tuna, beans, paneer)</li>
+          <li>Complex carbs (rice, quinoa, whole wheat wrap)</li>
+          <li>Vegetables — whatever she will actually eat</li>
+          <li>Healthy fat (avocado, olive oil, nuts, seeds)</li>
+        </ul>
+      </div>
+      <div>
+        <div class="lbl" style="color:var(--coral)">DINNER</div>
+        <ul class="pl">
+          <li>Larger protein serving (4-6 oz lean meat, fish, or plant protein)</li>
+          <li>Starchy carb on training days, less on rest days</li>
+          <li>Colorful vegetables — variety covers micronutrients</li>
+          <li>Salmon 2x/week for omega-3 anti-inflammatory benefit</li>
+        </ul>
+        <div class="lbl" style="color:var(--gold)">SMART SNACKS</div>
+        <ul class="pl">
+          <li>Trail mix (nuts + dried fruit)</li>
+          <li>Apple + almond butter</li>
+          <li>String cheese + whole grain crackers</li>
+          <li>Hummus + vegetables</li>
+          <li>Protein smoothie: banana + milk + protein powder</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dm"></span>SUPPLEMENTS — AGE-APPROPRIATE ONLY</div>
+    <div class="supp-g">
+      <div class="sc"><div class="sn">Vitamin D3</div><div class="sw">1,000–2,000 IU daily</div><div class="sd2">Pacific NW athletes are almost always deficient. Bone health + immune function.</div></div>
+      <div class="sc"><div class="sn">Omega-3 (Fish Oil)</div><div class="sw">1–2g EPA/DHA daily</div><div class="sd2">Reduces inflammation, supports joint recovery, cognitive function.</div></div>
+      <div class="sc"><div class="sn">Magnesium Glycinate</div><div class="sw">200–300mg before bed</div><div class="sd2">Supports sleep quality, muscle recovery, reduces next-day soreness.</div></div>
+      <div class="sc"><div class="sn">Calcium</div><div class="sw">If dairy intake is low</div><div class="sd2">Critical for bone density during peak growth years. Ideally from dairy and fortified foods.</div></div>
+      <div class="sc"><div class="sn">Whey / Plant Protein</div><div class="sw">Post-workout only if needed</div><div class="sd2">Only if she can't meet protein targets from food. Whole food first, always.</div></div>
+      <div class="sc"><div class="sn">Electrolyte Drink</div><div class="sw">During long sessions</div><div class="sd2">LMNT, Nuun, or homemade: water + pinch of salt + lemon + honey. Skip sugary sports drinks.</div></div>
+    </div>
+    <div class="warn"><strong>⚠ AVOID at 14:</strong> Creatine (insufficient adolescent data), pre-workouts, caffeine supplements, fat burners, anything marketed for weight loss. Her body is growing — feed it, don't manipulate it. Get pediatrician sign-off on any supplement.</div>
+  </div>
+</div>
+
+<!-- MENTAL -->
+<div class="section" id="sec-me">
+  <div class="sh"><div class="st">MENTAL <span>GAME</span></div><div class="sd">The separator between good players and recruited players. Train the mind like a muscle.</div></div>
+
+  <div class="hl"><strong>D1 coaches don't just recruit talent — they recruit character.</strong> Coachability, composure under pressure, leadership, resilience after errors — these are actively evaluated at every camp and showcase. A player who looks shaky mentally doesn't get the call back.</div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dl"></span>THE 5 MENTAL PILLARS</div>
+    <div class="acc"><div class="ah" onclick="ta(this)">🔁 1. Error Recovery — The 3-Second Rule <span class="arr">▼</span></div>
+    <div class="ab"><p style="color:var(--dim);font-size:12px;margin-bottom:9px;">The biggest differentiator between average and elite youth players is how fast they reset after a mistake.</p>
+    <ul class="pl">
+      <li><strong>The 3-second rule:</strong> After any error — feel it (1 sec), reset breath (1 sec), physical cue (1 sec) → next play focus. Done. Never longer than 3 seconds on any mistake.</li>
+      <li><strong>Physical reset cue:</strong> Pick one consistent move — clap once, say "Next," bounce on feet. Signal the brain to move forward automatically.</li>
+      <li><strong>Practice the reset in training, not just competition.</strong> Deliberately make errors in practice and practice resetting. It must become automatic before it works under pressure.</li>
+      <li><strong>Film review of errors:</strong> Watch mistakes with curiosity, not judgment. "What would I do differently?" Not "I'm terrible."</li>
+    </ul></div></div>
+    <div class="acc"><div class="ah" onclick="ta(this)">🎯 2. Process Focus Over Outcome Focus <span class="arr">▼</span></div>
+    <div class="ab"><ul class="pl">
+      <li><strong>Shift the goal:</strong> The goal is not to win — it's to execute the process perfectly. "My job on this play is X." Control what you can control.</li>
+      <li><strong>Pre-serve routine:</strong> Every single serve — same breath, same ritual, same target zone. The routine eliminates anxiety and builds consistency across pressure moments.</li>
+      <li><strong>Set process goals, not outcome goals:</strong> "I want 80% of my sets within 18 inches of target" not "I want us to win the tournament."</li>
+      <li><strong>Debrief questions after games:</strong> "Did I communicate on every ball? Did I run my footwork? Did I reset fast?" Not just "Did we win?"</li>
+    </ul></div></div>
+    <div class="acc"><div class="ah" onclick="ta(this)">💬 3. Communication &amp; Leadership Presence <span class="arr">▼</span></div>
+    <div class="ab"><ul class="pl">
+      <li><strong>Setters are the quarterback — be loud.</strong> Every camp coach watches who leads the floor. Not the loudest voice, but the most consistent one.</li>
+      <li><strong>Encourage teammates after every error.</strong> One word: "Next." Two words: "Got you." This builds culture and signals emotional maturity to every coach watching.</li>
+      <li><strong>Never complain to officials.</strong> Coaches are watching. A player who argues calls looks like a problem to manage — not an asset worth recruiting.</li>
+      <li><strong>Body language under pressure:</strong> Chest up, chin up, walk confidently to your position even after a tough sequence. D1 coaches specifically watch for this.</li>
+    </ul></div></div>
+    <div class="acc"><div class="ah" onclick="ta(this)">🧘 4. Stress Management &amp; Recovery <span class="arr">▼</span></div>
+    <div class="ab"><ul class="pl">
+      <li><strong>Box breathing:</strong> In 4 counts, hold 4, out 4, hold 4. Use before big matches, before sleep, after a tough game. Proven to reduce cortisol quickly.</li>
+      <li><strong>Journaling (5 min nightly):</strong> Three wins from today + one area to improve + one gratitude. Brief, honest, consistent. Rewires the brain for growth mindset.</li>
+      <li><strong>Visualization (5-10 min/day):</strong> Eyes closed, see 5 perfect reps — a set, a dig, a serve — crisp and clear. Elite athletes across every sport do this consistently.</li>
+      <li><strong>Digital boundaries:</strong> No phone 30 min before bed. Blue light crushes sleep quality, and sleep is when her body and brain recover and grow the most.</li>
+    </ul></div></div>
+    <div class="acc"><div class="ah" onclick="ta(this)">🏆 5. Coachability — The #1 D1 Recruit Trait <span class="arr">▼</span></div>
+    <div class="ab"><ul class="pl">
+      <li><strong>Respond to corrections with "Got it, thank you."</strong> No explanation, no defending. Coaches give feedback — absorb it immediately, implement on the very next rep. This is gold at every tryout.</li>
+      <li><strong>Ask one smart question per practice.</strong> "What should I be reading when Zone 1 is open?" Shows engagement, curiosity, volleyball IQ to coaches observing.</li>
+      <li><strong>Implement feedback on the very next rep.</strong> Immediate implementation is the #1 signal of coachability. D1 coaches specifically watch for this at every camp they run.</li>
+      <li><strong>Full effort on every warm-up.</strong> Coaches and scouts notice the player whose intensity is different from the group — even in the first 5 minutes of warm-up.</li>
+    </ul></div></div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dg"></span>DAILY MENTAL ROUTINE — 10 MINUTES TOTAL</div>
+    <div class="tr"><div class="tl2">MORNING<br>2 min</div><div class="ta"><strong>Intention Setting:</strong> "Today I will ___ [one specific skill focus]." Say it out loud. Write it down.</div></div>
+    <div class="tr"><div class="tl2">PRE-WORKOUT<br>3 min</div><div class="ta"><strong>Visualization:</strong> See 5 perfect reps — a set, a dig, a serve — crisp and sharp. Include how it feels, not just looks.</div></div>
+    <div class="tr"><div class="tl2">EVENING<br>5 min</div><div class="ta"><strong>Journal:</strong> 3 wins from today + 1 area to improve + 1 thing she's grateful for. Keep it brief, keep it honest, keep it consistent.</div></div>
+  </div>
+</div>
+
+<!-- SCHEDULE -->
+<div class="section" id="sec-sc">
+  <div class="sh"><div class="st">DAILY <span>&amp; WEEKLY SCHEDULE</span></div><div class="sd">The system that makes all the pillars actually happen. Structure = freedom.</div></div>
+
+  <div class="hl s"><strong>Priority order is locked:</strong> Sleep (9 hrs) → School → Volleyball training → Conditioning → Study → Everything else. When something has to give, it is NEVER sleep and NEVER school.</div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dg"></span>PRACTICE DAY — SCHOOL WEEK</div>
+    <div class="db">
+      <div class="dh"><span>⚡ WEEKDAY TEMPLATE (Practice Day)</span><span class="pill2">Active Template</span></div>
+      <div class="dc2">
+        <div class="tr"><div class="tl2">6:15 AM</div><div class="ta"><strong>Wake + Hydrate</strong> — 16oz water immediately. Non-negotiable start every single day.</div></div>
+        <div class="tr"><div class="tl2">6:20 AM</div><div class="ta"><strong>Morning routine</strong> — 2 min intention + 5 min stretch: hip flexors, shoulder circles, ankle rotations</div></div>
+        <div class="tr"><div class="tl2">6:40 AM</div><div class="ta"><strong>Breakfast</strong> — Full meal: eggs or yogurt + oatmeal or toast + fruit + milk. Not optional.</div></div>
+        <div class="tr"><div class="tl2">7:00–2:45</div><div class="ta"><strong>School</strong> — Full academic focus. Start homework in any free period or study hall.</div></div>
+        <div class="tr"><div class="tl2">3:00 PM</div><div class="ta"><strong>Pre-practice fuel</strong> — Banana + PB or granola + water. 30-60 min before practice.</div></div>
+        <div class="tr"><div class="tl2">3:30–5:30</div><div class="ta"><span class="badge bv">VOLLEYBALL PRACTICE</span> — 100% mental engagement. Treat every rep like a tryout.</div></div>
+        <div class="tr"><div class="tl2">5:30–6:00</div><div class="ta"><strong>Recovery window</strong> — Post-practice snack (chocolate milk or protein + carb) + 10 min foam roll</div></div>
+        <div class="tr"><div class="tl2">6:00–7:00</div><div class="ta"><strong>Dinner</strong> — Full family meal, real food, hydration catch-up</div></div>
+        <div class="tr"><div class="tl2">7:00–8:30</div><div class="ta"><span class="badge bs">STUDY BLOCK</span> — Phone in another room. 90 minutes of high-focus academics.</div></div>
+        <div class="tr"><div class="tl2">8:30–9:15</div><div class="ta"><strong>Wind down</strong> — Personal time, 5 min journal, no heavy screens, magnesium supplement</div></div>
+        <div class="tr"><div class="tl2">9:15 PM</div><div class="ta"><strong>SLEEP</strong> — Lights out. Target 9 hours. This is training, not laziness.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot ds"></span>NO-PRACTICE DAY — PERSONAL TRAINING</div>
+    <div class="db">
+      <div class="dh"><span>🏋️ NON-PRACTICE WEEKDAY</span></div>
+      <div class="dc2">
+        <div class="tr"><div class="tl2">6:15 AM</div><div class="ta">Wake + Hydrate + Morning routine — same every day, no exceptions</div></div>
+        <div class="tr"><div class="tl2">7:00–2:45</div><div class="ta"><strong>School</strong></div></div>
+        <div class="tr"><div class="tl2">3:30–4:10</div><div class="ta"><span class="badge bc">CONDITIONING</span> — 35-40 min focused session per the conditioning plan</div></div>
+        <div class="tr"><div class="tl2">4:15–4:45</div><div class="ta"><span class="badge bv">SKILL WORK</span> — Wall setting 500 reps + serving accuracy + setter footwork patterns (solo work)</div></div>
+        <div class="tr"><div class="tl2">4:45–5:00</div><div class="ta"><span class="badge br">RECOVERY</span> — Foam roll, hip flexor stretch, shoulder capsule mobility, box breathing</div></div>
+        <div class="tr"><div class="tl2">5:00–7:00</div><div class="ta"><strong>Dinner + family time + refuel properly</strong></div></div>
+        <div class="tr"><div class="tl2">7:00–9:00</div><div class="ta"><span class="badge bs">EXTENDED STUDY</span> — Non-practice nights are the get-ahead opportunity. Use them fully.</div></div>
+        <div class="tr"><div class="tl2">9:15 PM</div><div class="ta"><strong>SLEEP</strong></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dc"></span>WEEKEND TEMPLATE</div>
+    <div class="g2">
+      <div class="db">
+        <div class="dh"><span>📅 SATURDAY</span></div>
+        <div class="dc2">
+          <div class="tr"><div class="tl2">7:00 AM</div><div class="ta">Full breakfast + hydration before leaving</div></div>
+          <div class="tr"><div class="tl2">8:00 AM</div><div class="ta">Competition or intensive training session</div></div>
+          <div class="tr"><div class="tl2">Afternoon</div><div class="ta">Recovery: foam roll, snack, rest. No hard training.</div></div>
+          <div class="tr"><div class="tl2">Evening</div><div class="ta">Study 45-60 min + journal + early sleep target</div></div>
+        </div>
+      </div>
+      <div class="db">
+        <div class="dh"><span>☀️ SUNDAY</span></div>
+        <div class="dc2">
+          <div class="tr"><div class="tl2">8:00 AM</div><div class="ta">Sleep in (9+ hrs). Full breakfast. Intentional rest.</div></div>
+          <div class="tr"><div class="tl2">10:00 AM</div><div class="ta">Light walk, yoga, or complete passive rest</div></div>
+          <div class="tr"><div class="tl2">11:00 AM</div><div class="ta">Film review 20 min + plan the week ahead</div></div>
+          <div class="tr"><div class="tl2">Afternoon</div><div class="ta">Study block 2 hours — get ahead, not behind</div></div>
+          <div class="tr"><div class="tl2">Evening</div><div class="ta">Family time, good dinner, early bed for Monday</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dl"></span>ACADEMICS — THE HIDDEN RECRUITING EDGE</div>
+    <ul class="pl">
+      <li><strong>Target GPA 3.7+ unweighted.</strong> Many D1 programs require academic standing for scholarship eligibility. It also opens academic merit aid as a financial safety net.</li>
+      <li><strong>90-minute focused study blocks.</strong> Phone in another room. No music with lyrics. This is her academic training — same discipline as the sport.</li>
+      <li><strong>Stay ahead, not catching up.</strong> Work ahead on Sundays. Never scramble the night before a test. Academic stress hurts volleyball performance directly.</li>
+      <li><strong>PSAT (9th/10th) → SAT junior year:</strong> Target 1250+ SAT or 27+ ACT for the broadest D1 program options.</li>
+      <li><strong>Track NCAA core courses now.</strong> NCAA requires 16 core academic courses. English, Math, Science, Social Studies. Do not leave this to senior year — verify with your school counselor now.</li>
+      <li><strong>Register with NCAA Eligibility Center at studentathlete.ncaa.org</strong> — free, takes 20 minutes, do it this week.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- RECRUITMENT -->
+<div class="section" id="sec-re">
+  <div class="sh"><div class="st">D1 <span>RECRUITING ROADMAP</span></div><div class="sd">How college coaches find her — and how she makes it impossible to look away.</div></div>
+
+  <div class="hl"><strong>The Reality:</strong> Most D1 verbal commitments happen junior year — some as early as sophomore. Coaches build their boards early. Being visible at the right events matters as much as being talented. Both are non-negotiable.</div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dg"></span>YEAR-BY-YEAR RECRUITING ACTIONS</div>
+    <table class="sched">
+      <thead><tr><th>Timeframe</th><th>Action Items</th></tr></thead>
+      <tbody>
+        <tr><td>9th Grade NOW</td><td>• Land a nationally-rated club team (USAV membership, A or Open level)<br>• Attend 2-3 college ID camps at target schools<br>• Build recruiting profile on NCSA or Hudl/BeRecruited<br>• Start a highlights folder — save every strong game clip<br>• Register with NCAA Eligibility Center (studentathlete.ncaa.org) — do this now</td></tr>
+        <tr><td>10th Grade</td><td>• Attend Big Show, Triple Crown, or prominent JO qualifier events<br>• Create formal highlight reel (2-3 min, Hudl platform preferred)<br>• Email D1 coaches proactively — introduce yourself, share film questionnaire<br>• PSAT in October — baseline for SAT planning and prep timeline<br>• Identify 15-20 target schools by academic fit + volleyball program tier</td></tr>
+        <tr><td>11th Grade (Critical)</td><td>• Sept 1: Official D1 contact is now legal — be ready when the phone rings<br>• Official and unofficial visits to top target programs<br>• SAT/ACT in fall of junior year — retest if needed<br>• JO Nationals June — biggest recruiting event of the calendar year. Be there.<br>• Verbal commitment goal by end of junior year or early fall of senior year</td></tr>
+        <tr><td>12th Grade</td><td>• November signing period — sign National Letter of Intent<br>• Submit NCAA Eligibility Center paperwork: transcripts, test scores, core course verification<br>• Stay engaged with committed program — film, updates, campus visits<br>• Maintain grades — scholarships can be rescinded for academic failure</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot ds"></span>WHAT D1 COACHES LOOK FOR</div>
+    <div class="g2">
+      <div>
+        <div class="lbl" style="color:var(--sky)">SETTER EVALUATION</div>
+        <ul class="pl">
+          <li><strong>Ball control under pressure</strong> — handles anything thrown at her</li>
+          <li><strong>Offense orchestration</strong> — runs varied, tempo-changing offense</li>
+          <li><strong>Athleticism</strong> — moves well, gets to every ball first</li>
+          <li><strong>Communication</strong> — verbal, constant, decisive, confident</li>
+          <li><strong>Composure</strong> — cool when down, energy when up</li>
+          <li><strong>Serving weapon</strong> — adds value as a serve threat</li>
+        </ul>
+      </div>
+      <div>
+        <div class="lbl" style="color:var(--coral)">LIBERO EVALUATION</div>
+        <ul class="pl">
+          <li><strong>Passing grade</strong> — 2.4+ average is D1 competitive</li>
+          <li><strong>Range + pursuit</strong> — extraordinary floor coverage</li>
+          <li><strong>Serve receive leadership</strong> — sets the defensive platform tone</li>
+          <li><strong>Vocal presence</strong> — calls every ball, directs traffic constantly</li>
+          <li><strong>Serving</strong> — aggressive, strategic, consistent floater</li>
+          <li><strong>Competitive fire</strong> — great liberos live for the biggest digs</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dm"></span>THE HIGHLIGHT REEL — YOUR BUSINESS CARD</div>
+    <ul class="pl">
+      <li><strong>Length: 2-3 minutes maximum.</strong> Coaches watch the first 30 seconds — if it doesn't hook them immediately, they move on. Front-load your very best plays.</li>
+      <li><strong>Opening 30 seconds:</strong> Your absolute best plays — best set to a kill, best dig, best serve result. Lead with the highlight of the highlights.</li>
+      <li><strong>Show both positions</strong> — setter and libero. Versatility is a genuine recruiting advantage at every level.</li>
+      <li><strong>Include overlays:</strong> Tournament name, date, team name, jersey number. Coaches need context to evaluate correctly.</li>
+      <li><strong>Hudl Sport is the industry standard.</strong> Upload there. Every D1 coach has an account. Make it easy for them to find her and share her film.</li>
+      <li><strong>Update every 6 months.</strong> Freshman film should be replaced entirely by junior year's film. Old film hurts more than it helps if her game has grown.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dc"></span>HEIGHT + POSITION — HONEST REALITY CHECK</div>
+    <div class="hl c" style="margin-bottom:0"><strong>The honest truth:</strong> At 5'1" today, the libero path is statistically more D1-accessible — the position is height-independent and top D1 liberos are typically 5'2"-5'6". However, setters at 5'4"-5'6" absolutely get recruited at D1. She has 4 full years of growth potential remaining. Build BOTH positions equally and completely. Let her body and her performance decide — not assumptions made at 14. Coaches recruit rare talent. Become rare.</div>
+  </div>
+
+  <div class="card">
+    <div class="ct"><span class="dot dl"></span>KEY CONTACTS &amp; RESOURCES TO ACTION NOW</div>
+    <ul class="pl">
+      <li><strong>NCAA Eligibility Center:</strong> studentathlete.ncaa.org — register, create account, start core course tracking today</li>
+      <li><strong>Hudl Recruiting:</strong> hudl.com — create athlete profile, upload film, make it public and searchable</li>
+      <li><strong>NCSA College Recruiting:</strong> ncsasports.org — free profile, coaches search this database actively</li>
+      <li><strong>PrepVolleyball.com:</strong> Rankings, camp lists, college commitments — understand the landscape and where top players go</li>
+      <li><strong>VolleyballMag.com:</strong> College program information, D1 program profiles, recruiting news</li>
+      <li><strong>JO Nationals:</strong> June in Las Vegas — single most important recruiting event in junior volleyball. Get there.</li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function ta(head) {
+  head.classList.toggle('open');
+  const body = head.nextElementSibling;
+  body.classList.toggle('open');
+}
+</script>
+</body>
+</html>
