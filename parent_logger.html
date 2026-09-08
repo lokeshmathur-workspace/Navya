@@ -68,7 +68,8 @@ input:focus,textarea:focus{border-color:var(--gold)}
     <div class="sub" style="margin-bottom:8px">📝 Notes (optional)</div>
     <textarea id="parent-notes" placeholder="Anything notable — sick, long day, travel…" style="min-height:60px;resize:none"></textarea>
   </div>
-  <button class="save-btn btn" id="save-btn" onclick="saveLog()">☁ Save to Cloud</button>
+  <div id="debug-out" style="display:none;background:#12161e;border:1px solid #f0c040;border-radius:8px;padding:12px;margin-bottom:10px;font-family:monospace;font-size:11px;color:#f0c040;white-space:pre-wrap;max-height:200px;overflow-y:auto"></div>
+<button class="save-btn btn" id="save-btn" onclick="saveLog()">☁ Save to Cloud</button>
   <div style="margin-top:20px">
     <div class="sub" style="margin-bottom:10px">Recent Log</div>
     <div style="background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px">
@@ -77,7 +78,7 @@ input:focus,textarea:focus{border-color:var(--gold)}
   </div>
   <div style="height:20px"></div>
 </div>
-<script>var _T="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",_O="lokeshmathur-workspace",_R="Navya",_F="navya_data.json";function _em(){return {daily_logs:{},parent_logs:{},game_logs:{}}; }async function ghRead(){  try{    var r=await fetch("https://api.github.com/repos/"+_O+"/"+_R+"/contents/"+_F,      {headers:{"Authorization":"Bearer "+_T,"Accept":"application/vnd.github+json"}});    if(r.status===404)return{data:_em(),sha:null};    var j=await r.json();    var data=JSON.parse(atob(j.content.replace(/\s/g,"")));    localStorage.setItem("nvb_cache",JSON.stringify({data:data,ts:Date.now()}));    return{data:data,sha:j.sha};  }catch(e){    try{var c=localStorage.getItem("nvb_cache");if(c){var p=JSON.parse(c);return{data:p.data,sha:null,cached:true};}}catch(_){}    return{data:_em(),sha:null,cached:true};  }}async function ghWrite(data,sha,msg){  localStorage.setItem("nvb_cache",JSON.stringify({data:data,ts:Date.now()}));  try{    var content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));    var body={message:msg||"Update",content:content};    if(sha)body.sha=sha;    var r=await fetch("https://api.github.com/repos/"+_O+"/"+_R+"/contents/"+_F,{      method:"PUT",      headers:{"Authorization":"Bearer "+_T,"Accept":"application/vnd.github+json","Content-Type":"application/json"},      body:JSON.stringify(body)});    var j=await r.json();    return{ok:r.ok,sha:j.content&&j.content.sha};  }catch(e){return{ok:false};}}async function ghMerge(section,key,value,msg){  for(var i=0;i<3;i++){    var rd=await ghRead();    if(!rd.data[section])rd.data[section]={};    rd.data[section][key]=value;    var res=await ghWrite(rd.data,rd.sha,msg);    if(res.ok)return res;  }  return{ok:false};}</script>
+<script>var _T="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",_O="lokeshmathur-workspace",_R="Navya",_F="navya_data.json";function _em(){return {daily_logs:{},parent_logs:{},game_logs:{}}; }async function ghRead(){  try{    var r=await fetch("https://api.github.com/repos/"+_O+"/"+_R+"/contents/"+_F,      {headers:{"Authorization":"Bearer "+_T,"Accept":"application/vnd.github+json"}});    if(r.status===404)return{data:_em(),sha:null};    var j=await r.json();    var data=JSON.parse(atob(j.content.replace(/\s/g,"")));    localStorage.setItem("nvb_cache",JSON.stringify({data:data,ts:Date.now()}));    return{data:data,sha:j.sha};  }catch(e){    try{var c=localStorage.getItem("nvb_cache");if(c){var p=JSON.parse(c);return{data:p.data,sha:null,cached:true};}}catch(_){}    return{data:_em(),sha:null,cached:true};  }}async function ghWrite(data,sha,msg){  localStorage.setItem("nvb_cache",JSON.stringify({data:data,ts:Date.now()}));  try{    var content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));    var body={message:msg||"Update",content:content};    if(sha)body.sha=sha;    var r=await fetch("https://api.github.com/repos/"+_O+"/"+_R+"/contents/"+_F,{      method:"PUT",      headers:{"Authorization":"Bearer "+_T,"Accept":"application/vnd.github+json","Content-Type":"application/json"},      body:JSON.stringify(body)});    var j=await r.json();    return{ok:r.ok,sha:j.content&&j.content.sha};  }catch(e){return{ok:false};}}async function ghMerge(section,key,value,msg){  for(var i=0;i<3;i++){    var rd=await ghRead();    if(!rd.data[section])rd.data[section]={};    rd.data[section][key]=value;    var res=await ghWrite(rd.data,rd.sha,msg);    if(res.ok)return res;  }  return{ok:false};}</script>
 <script>
 var meals={breakfast:"",lunch:"",dinner:""};
 var ghData=null;
@@ -106,8 +107,18 @@ document.addEventListener("DOMContentLoaded",function(){
   calcSleep();
 });
 
+function dbg(msg){
+  var el=document.getElementById("debug-out");
+  if(!el)return;
+  el.style.display="block";
+  el.textContent+="\n"+new Date().toLocaleTimeString()+": "+msg;
+}
+
 async function saveLog(){
   var btn=document.getElementById("save-btn");btn.textContent="Saving...";btn.disabled=true;
+  var dbgEl=document.getElementById("debug-out");if(dbgEl){dbgEl.textContent="";dbgEl.style.display="block";}
+  dbg("Starting save...");
+
   var bt=document.getElementById("bedtime").value;
   var wt=document.getElementById("waketime").value;
   var bp=bt.split(":"),wp=wt.split(":");
@@ -116,12 +127,42 @@ async function saveLog(){
   var hrs=Math.round((wm-bm)/60*10)/10;
   var dateKey=document.getElementById("log-date").value||new Date().toISOString().split("T")[0];
   var entry={bedtime:bt,wake_time:wt,sleep_hrs:hrs,breakfast:meals.breakfast,lunch:meals.lunch,dinner:meals.dinner,notes:document.getElementById("parent-notes").value};
-  var res=await ghMerge("parent_logs",dateKey,entry,"Parent log "+dateKey);
-  if(res.ok){
-    btn.className="save-btn btn done";btn.textContent="✅ Saved!";
-    var rd=await ghRead();ghData=rd.data;buildLog();
-    setTimeout(function(){btn.className="save-btn btn";btn.textContent="☁ Save to Cloud";btn.disabled=false;},3000);
-  }else{btn.textContent="❌ Failed — retry";btn.disabled=false;}
+
+  dbg("Reading from GitHub...");
+  var rd=await ghRead();
+  dbg("Read result: sha="+(rd.sha||"NULL")+" cached="+(rd.cached||false));
+
+  if(!rd.sha){dbg("WARNING: No SHA — file may not exist or token rejected on read");}
+
+  rd.data["parent_logs"]=rd.data["parent_logs"]||{};
+  rd.data["parent_logs"][dateKey]=entry;
+
+  dbg("Writing to GitHub...");
+  // Do the write directly with full error reporting
+  try{
+    var content=btoa(unescape(encodeURIComponent(JSON.stringify(rd.data,null,2))));
+    var body={message:"Parent log "+dateKey,content:content};
+    if(rd.sha)body.sha=rd.sha;
+    dbg("PUT body sha: "+(rd.sha||"none (create mode)"));
+    var r=await fetch("https://api.github.com/repos/"+_O+"/"+_R+"/contents/"+_F,{
+      method:"PUT",
+      headers:{"Authorization":"Bearer "+_T,"Accept":"application/vnd.github+json","Content-Type":"application/json"},
+      body:JSON.stringify(body)
+    });
+    var j=await r.json();
+    dbg("GitHub response status: "+r.status);
+    dbg("GitHub response: "+JSON.stringify(j).slice(0,200));
+    if(r.ok){
+      btn.className="save-btn btn done";btn.textContent="✅ Saved!";
+      ghData=rd.data;buildLog();
+      setTimeout(function(){btn.className="save-btn btn";btn.textContent="☁ Save to Cloud";btn.disabled=false;},3000);
+    }else{
+      btn.textContent="❌ Failed — see debug below";btn.disabled=false;
+    }
+  }catch(e){
+    dbg("EXCEPTION: "+e.message);
+    btn.textContent="❌ Exception — see debug";btn.disabled=false;
+  }
 }
 
 function buildLog(){
