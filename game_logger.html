@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#0a0c10"><title>Navya — Game Logger</title><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"><style>
+:root{--bg:#0a0c10;--panel:#1a1f2b;--p2:#222836;--border:#2a3040;
+  --gold:#f0c040;--gold2:#c8880a;--sky:#4a9eff;--coral:#ff6b5b;
+  --mint:#4ecba0;--lav:#a088ff;--warm:#ff9955;
+  --text:#e8eaf0;--dim:#8892a4;--muted:#4a5568;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;
+  font-size:15px;line-height:1.5;max-width:480px;margin:0 auto;min-height:100vh;
+  padding-bottom:env(safe-area-inset-bottom,20px)}
+.btn{border:none;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.btn:active{transform:scale(.97)}
+input,textarea{font-family:inherit;background:var(--panel);border:1px solid var(--border);
+  color:var(--text);border-radius:8px;padding:12px 14px;font-size:14px;outline:none;width:100%}
+input:focus,textarea:focus{border-color:var(--gold)}
+
+.hdr{background:#12161e;border-bottom:2px solid var(--coral);padding:14px 18px 12px;position:sticky;top:0;z-index:50}
+.screen{display:none;padding:16px}.screen.active{display:block;animation:fi .3s ease}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.type-btn{padding:14px 8px;background:var(--panel);border:1px solid var(--border);border-radius:10px;color:var(--dim);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;text-align:center}
+.type-btn.sel{background:rgba(255,107,91,.15);border-color:var(--coral);color:var(--coral)}
+.start-btn{width:100%;padding:18px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--coral),#cc3322);color:#fff;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px}
+.set-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding:12px 14px;background:rgba(255,107,91,.1);border:1px solid rgba(255,107,91,.3);border-radius:10px}
+.set-num{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--coral)}
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--panel);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.sbtn{width:48px;height:48px;background:#12161e;border:1px solid var(--border);color:var(--text);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sbtn.m{border-radius:10px 0 0 10px}.sbtn.p{border-radius:0 10px 10px 0}
+.sval-box{min-width:56px;height:48px;background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700}
+.comm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.comm-btn{padding:16px 8px;border:2px solid var(--border);border-radius:12px;background:var(--panel);cursor:pointer;font-family:inherit;font-size:12px;font-weight:700;transition:all .2s;text-align:center;line-height:1.4}
+.comm-btn.pos{border-color:var(--mint);background:rgba(78,203,160,.12);color:var(--mint)}
+.comm-btn.neg{border-color:var(--coral);background:rgba(255,107,91,.12);color:var(--coral)}
+.comm-count{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px;display:block}
+.end-set-btn{width:100%;padding:16px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0a0c10;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal.show{display:flex}
+.modal-box{background:#1a1f2b;border-top:2px solid var(--gold);border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.score-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.score-inp{text-align:center;font-size:22px;font-weight:700;padding:12px 8px;max-width:80px}
+.wl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.wl-btn{padding:14px;border:2px solid var(--border);border-radius:10px;background:var(--panel);cursor:pointer;font-family:inherit;font-size:18px;font-weight:700;transition:all .2s}
+.wl-btn.w.sel{border-color:var(--mint);background:rgba(78,203,160,.15);color:var(--mint)}
+.wl-btn.l.sel{border-color:var(--coral);background:rgba(255,107,91,.15);color:var(--coral)}
+.rate-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.rate-btn{padding:12px 4px;border:1px solid var(--border);border-radius:10px;background:var(--panel);cursor:pointer;font-family:inherit;font-size:11px;font-weight:600;color:var(--dim);transition:all .2s}
+.rate-btn.sel{border-color:var(--gold);background:rgba(240,192,64,.15);color:var(--gold)}
+.next-btn{width:100%;padding:16px;border:none;border-radius:12px;background:var(--mint);color:#0a0c10;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px}
+.end-game-btn-m{width:100%;padding:14px;border:1px solid var(--coral);border-radius:12px;background:rgba(255,107,91,.1);color:var(--coral);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.feel5{display:flex;gap:6px;margin-bottom:16px}
+.f5btn{flex:1;padding:10px 2px;background:var(--panel);border:1px solid var(--border);border-radius:10px;color:var(--dim);font-size:10px;cursor:pointer;font-family:inherit;line-height:1.5;transition:all .2s}
+.f5btn.sel{background:rgba(240,192,64,.18);border-color:var(--gold);color:var(--gold)}
+.save-game-btn{width:100%;padding:16px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--mint),#2a8060);color:#0a0c10;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px}
+.set-summary{background:rgba(255,107,91,.05);border:1px solid rgba(255,107,91,.2);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:12px;color:var(--dim)}
+.set-summary strong{color:var(--text)}
+.sub{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:1px;color:var(--dim);margin:0 0 10px 2px}
+</style></head><body><div id="pin-screen" style="position:fixed;inset:0;background:#0a0c10;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'DM Sans',system-ui,sans-serif;padding:30px;transition:opacity .4s"><div style="font-size:36px;margin-bottom:8px">🏐</div><div style="font-family:'Bebas Neue',cursive;font-size:26px;letter-spacing:2px;color:#e8eaf0;margin-bottom:4px">Game Logger</div><div style="font-size:11px;color:#8892a4;margin-bottom:32px;font-family:monospace;letter-spacing:1px;text-transform:uppercase">Enter PIN</div><div style="display:flex;gap:14px;margin-bottom:32px" id="pdots"><div class="pd"></div><div class="pd"></div><div class="pd"></div><div class="pd"></div></div><div style="display:grid;grid-template-columns:repeat(3,72px);gap:10px"><button class="pkey btn" onclick="pk('1')">1</button><button class="pkey btn" onclick="pk('2')">2</button><button class="pkey btn" onclick="pk('3')">3</button><button class="pkey btn" onclick="pk('4')">4</button><button class="pkey btn" onclick="pk('5')">5</button><button class="pkey btn" onclick="pk('6')">6</button><button class="pkey btn" onclick="pk('7')">7</button><button class="pkey btn" onclick="pk('8')">8</button><button class="pkey btn" onclick="pk('9')">9</button><div></div><button class="pkey btn" onclick="pk('0')">0</button><button class="pkey btn" onclick="pb()" style="font-size:20px">&#x232B;</button></div><div id="pmsg" style="height:20px;margin-top:16px;font-size:12px;color:#ff6b5b;font-weight:600"></div></div><style>.pd{width:14px;height:14px;border-radius:50%;border:2px solid #2a3040;transition:background .15s}.pkey{width:72px;height:72px;border-radius:50%;border:1px solid #2a3040;background:#1a1f2b;color:#e8eaf0;font-size:22px;font-weight:500}.pkey:active{background:#2a3040}@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}.shake{animation:shake .35s ease}</style><script>var _p="",_ok="0518",_lk=false;(function(){if(localStorage.getItem("nvb_auth")==="yes")document.getElementById("pin-screen").style.display="none";})();function pk(k){if(_lk||_p.length>=4)return;_p+=k;ud();if(_p.length===4)chk();}function pb(){if(_p.length>0){_p=_p.slice(0,-1);ud();}}function ud(){document.querySelectorAll(".pd").forEach(function(d,i){d.style.background=i<_p.length?"#f0c040":"transparent";d.style.borderColor=i<_p.length?"#f0c040":"#2a3040";});}function chk(){_lk=true;if(_p===_ok){localStorage.setItem("nvb_auth","yes");var s=document.getElementById("pin-screen");s.style.opacity="0";setTimeout(function(){s.style.display="none";},400);}else{var dd=document.getElementById("pdots");dd.classList.add("shake");document.querySelectorAll(".pd").forEach(function(d){d.style.background="#ff6b5b";d.style.borderColor="#ff6b5b";});document.getElementById("pmsg").textContent="Incorrect PIN";setTimeout(function(){dd.classList.remove("shake");_p="";ud();document.getElementById("pmsg").textContent="";_lk=false;},700);}}</script>
+<div class="hdr">
+  <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--coral);margin-bottom:2px">⚡ Game Logger</div>
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div><div style="font-size:21px;font-weight:700" id="hdr-title">New Game</div>
+    <div style="font-size:12px;color:var(--dim)" id="hdr-sub">Set up the game to begin</div></div>
+    <div style="text-align:right">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--coral)" id="hdr-wl"></div>
+      <div style="font-size:11px;color:var(--dim);font-family:monospace" id="hdr-sets"></div>
+    </div>
+  </div>
+</div>
+
+<div class="screen active" id="scr-setup">
+  <div style="margin-bottom:20px">
+    <div class="sub" style="margin-bottom:8px">Opponent</div>
+    <input type="text" id="opponent" placeholder="e.g. Eastside Elite VBC" style="margin-bottom:16px">
+    <div class="sub" style="margin-bottom:8px">Game Type</div>
+    <div class="type-grid">
+      <button class="type-btn btn" onclick="selType(this,'HS Varsity')">🏫 HS Varsity</button>
+      <button class="type-btn btn" onclick="selType(this,'HS JV')">🏫 HS JV</button>
+      <button class="type-btn btn" onclick="selType(this,'Club A')">🏐 Club A</button>
+      <button class="type-btn btn" onclick="selType(this,'Club B')">🏐 Club B</button>
+    </div>
+    <div class="sub" style="margin-bottom:8px">Date</div>
+    <input type="date" id="game-date" style="margin-bottom:20px">
+  </div>
+  <button class="start-btn btn" onclick="startGame()">▶ Start Game</button>
+</div>
+
+<div class="screen" id="scr-live">
+  <div class="set-hdr">
+    <div><div class="set-num" id="set-label">SET 1</div>
+    <div style="font-size:11px;color:var(--dim);font-family:monospace" id="set-subtxt">Live logging</div></div>
+    <div style="font-size:13px;color:var(--dim);font-weight:600" id="set-record">0 W — 0 L</div>
+  </div>
+  <div class="sub">Setting Stats</div>
+  <div class="stat-row"><div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--text);flex:1">🏐 Assists</div><div style="display:flex;align-items:stretch"><button class="sbtn m btn" onclick="adj('assists',-1)">−</button><div class="sval-box" id="v-assists" style="color:var(--sky)">0</div><button class="sbtn p btn" onclick="adj('assists',1)">+</button></div></div>
+  <div class="stat-row"><div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--text);flex:1">❌ Set Errors</div><div style="display:flex;align-items:stretch"><button class="sbtn m btn" onclick="adj('set_errors',-1)">−</button><div class="sval-box" id="v-set_errors" style="color:var(--coral)">0</div><button class="sbtn p btn" onclick="adj('set_errors',1)">+</button></div></div>
+  <div class="stat-row"><div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--text);flex:1">⚡ Dump Kills</div><div style="display:flex;align-items:stretch"><button class="sbtn m btn" onclick="adj('dump_kills',-1)">−</button><div class="sval-box" id="v-dump_kills" style="color:var(--gold)">0</div><button class="sbtn p btn" onclick="adj('dump_kills',1)">+</button></div></div>
+  <div class="sub" style="margin-top:16px">Serving</div>
+  <div class="stat-row"><div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--text);flex:1">🎯 Aces</div><div style="display:flex;align-items:stretch"><button class="sbtn m btn" onclick="adj('aces',-1)">−</button><div class="sval-box" id="v-aces" style="color:var(--mint)">0</div><button class="sbtn p btn" onclick="adj('aces',1)">+</button></div></div>
+  <div class="stat-row"><div style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--text);flex:1">🚫 Service Errors</div><div style="display:flex;align-items:stretch"><button class="sbtn m btn" onclick="adj('service_errors',-1)">−</button><div class="sval-box" id="v-service_errors" style="color:var(--coral)">0</div><button class="sbtn p btn" onclick="adj('service_errors',1)">+</button></div></div>
+  <div class="sub" style="margin-top:16px">Communication & Leadership</div>
+  <div class="comm-grid">
+    <button class="comm-btn pos btn" onclick="adj('comm_positive',1)"><span class="comm-count" id="v-comm_positive">0</span>🗣️ COMM+<br><span style="font-size:10px;font-weight:400;color:var(--dim)">Called ball, directed, encouraged</span></button>
+    <button class="comm-btn neg btn" onclick="adj('comm_missed',1)"><span class="comm-count" id="v-comm_missed">0</span>😤 RESET MISS<br><span style="font-size:10px;font-weight:400;color:var(--dim)">Dropped body language / no reset</span></button>
+  </div>
+  <button class="end-set-btn btn" onclick="openEndSet()">End Set →</button>
+  <div style="height:20px"></div>
+</div>
+
+<div class="screen" id="scr-postgame">
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--mint);margin-bottom:4px">Game Complete!</div>
+  <div id="game-summary-hdr" style="font-size:13px;color:var(--dim);margin-bottom:14px"></div>
+  <div class="sub" style="margin-bottom:8px">Set Summary</div>
+  <div id="sets-summary"></div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="sub" style="margin-bottom:10px">Energy Walking IN (1-5)</div>
+    <div class="feel5" id="energy-start-grid">
+      <button class="f5btn btn" onclick="setEn('start',1)">😴<br>Low</button><button class="f5btn btn" onclick="setEn('start',2)">😑<br>Meh</button><button class="f5btn btn" onclick="setEn('start',3)">🙂<br>Good</button><button class="f5btn btn" onclick="setEn('start',4)">😃<br>High</button><button class="f5btn btn" onclick="setEn('start',5)">🔥<br>Peak</button>
+    </div>
+    <div class="sub" style="margin-bottom:10px;margin-top:4px">Energy End of Game (1-5)</div>
+    <div class="feel5" id="energy-end-grid">
+      <button class="f5btn btn" onclick="setEn('end',1)">😴<br>Wiped</button><button class="f5btn btn" onclick="setEn('end',2)">😑<br>Fading</button><button class="f5btn btn" onclick="setEn('end',3)">🙂<br>OK</button><button class="f5btn btn" onclick="setEn('end',4)">😃<br>Strong</button><button class="f5btn btn" onclick="setEn('end',5)">🔥<br>Full tank</button>
+    </div>
+    <div class="sub" style="margin-bottom:10px;margin-top:4px">Mental Composure / Reset (1-5)</div>
+    <div class="feel5" id="composure-grid">
+      <button class="f5btn btn" onclick="setEn('composure',1)">😰<br>Struggled</button><button class="f5btn btn" onclick="setEn('composure',2)">😟<br>Shaky</button><button class="f5btn btn" onclick="setEn('composure',3)">😐<br>OK</button><button class="f5btn btn" onclick="setEn('composure',4)">😌<br>Solid</button><button class="f5btn btn" onclick="setEn('composure',5)">🧠<br>Elite</button>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="sub" style="margin-bottom:8px">Coach Feedback Today</div>
+    <textarea id="coach-feedback" placeholder="What did the coach say to focus on?" style="min-height:60px;resize:none;margin-bottom:12px"></textarea>
+    <div class="sub" style="margin-bottom:8px">One Thing to Work On Before Next Game</div>
+    <input type="text" id="focus-area" placeholder="e.g. Back-set accuracy, communication in set 3">
+  </div>
+  <button class="save-game-btn btn" id="save-game-btn" onclick="saveGame()">☁ Save Game to Cloud</button>
+  <div style="height:20px"></div>
+</div>
+
+<div class="modal" id="modal-endset">
+  <div class="modal-box">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;color:var(--gold);margin-bottom:16px" id="modal-set-ttl">End of SET 1</div>
+    <div class="sub" style="margin-bottom:8px">Final Score</div>
+    <div class="score-row"><input type="number" class="score-inp" id="score-us" placeholder="Us" min="0" max="35"><span style="font-size:20px;color:var(--dim)">—</span><input type="number" class="score-inp" id="score-them" placeholder="Them" min="0" max="35"></div>
+    <div class="wl-grid"><button class="wl-btn w btn" id="wl-w" onclick="selWL('W')">✅ WIN</button><button class="wl-btn l btn" id="wl-l" onclick="selWL('L')">❌ LOSS</button></div>
+    <div class="sub" style="margin-bottom:8px">Communication This Set</div>
+    <div class="rate-grid"><button class="rate-btn btn" id="comm-quiet" onclick="selComm('Quiet')">🔇 Quiet</button><button class="rate-btn btn" id="comm-decent" onclick="selComm('Decent')">💬 Decent</button><button class="rate-btn btn" id="comm-leading" onclick="selComm('Leading')">📢 Leading</button></div>
+    <div class="sub" style="margin-bottom:8px">Body Language This Set</div>
+    <div class="rate-grid" style="margin-bottom:20px"><button class="rate-btn btn" id="bl-dropped" onclick="selBL('Dropped')">📉 Dropped</button><button class="rate-btn btn" id="bl-steady" onclick="selBL('Steady')">➡️ Steady</button><button class="rate-btn btn" id="bl-strong" onclick="selBL('Strong')">💪 Strong</button></div>
+    <button class="next-btn btn" onclick="nextSet()">▶ Next Set</button>
+    <button class="end-game-btn-m btn" onclick="endGame()">🏁 End Game &amp; Post-Game Entry</button>
+  </div>
+</div>
+<script>var _T="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",_O="lokeshmathur-workspace",_R="Navya",_F="navya_data.json";function _em(){return {daily_logs:{},parent_logs:{},game_logs:{}}; }async function ghRead(){  try{    var r=await fetch("https://api.github.com/repos/"+_O+"/"+_R+"/contents/"+_F,      {headers:{"Authorization":"Bearer "+_T,"Accept":"application/vnd.github+json"}});    if(r.status===404)return{data:_em(),sha:null};    var j=await r.json();    var data=JSON.parse(atob(j.content.replace(/\s/g,"")));    localStorage.setItem("nvb_cache",JSON.stringify({data:data,ts:Date.now()}));    return{data:data,sha:j.sha};  }catch(e){    try{var c=localStorage.getItem("nvb_cache");if(c){var p=JSON.parse(c);return{data:p.data,sha:null,cached:true};}}catch(_){}    return{data:_em(),sha:null,cached:true};  }}async function ghWrite(data,sha,msg){  localStorage.setItem("nvb_cache",JSON.stringify({data:data,ts:Date.now()}));  try{    var content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));    var body={message:msg||"Update",content:content};    if(sha)body.sha=sha;    var r=await fetch("https://api.github.com/repos/"+_O+"/"+_R+"/contents/"+_F,{      method:"PUT",      headers:{"Authorization":"Bearer "+_T,"Accept":"application/vnd.github+json","Content-Type":"application/json"},      body:JSON.stringify(body)});    var j=await r.json();    return{ok:r.ok,sha:j.content&&j.content.sha};  }catch(e){return{ok:false};}}async function ghMerge(section,key,value,msg){  for(var i=0;i<3;i++){    var rd=await ghRead();    if(!rd.data[section])rd.data[section]={};    rd.data[section][key]=value;    var res=await ghWrite(rd.data,rd.sha,msg);    if(res.ok)return res;  }  return{ok:false};}</script>
+<script>
+var game={opponent:"",type:"",date:"",sets:[]};
+var curSet={set_num:1,assists:0,set_errors:0,dump_kills:0,aces:0,service_errors:0,comm_positive:0,comm_missed:0};
+var postGame={energy_start:0,energy_end:0,composure:0,coach_feedback:"",focus_area:""};
+var winsLosses=[0,0];
+var modalWL="",modalComm="",modalBL="";
+
+function selType(el,t){game.type=t;document.querySelectorAll(".type-btn").forEach(function(b){b.classList.remove("sel");});el.classList.add("sel");}
+function startGame(){
+  var opp=document.getElementById("opponent").value.trim();
+  if(!opp){alert("Enter opponent name");return;}
+  if(!game.type){alert("Select game type");return;}
+  game.opponent=opp;game.date=document.getElementById("game-date").value||new Date().toISOString().split("T")[0];
+  document.getElementById("hdr-title").textContent=opp;
+  document.getElementById("hdr-sub").textContent=game.type+" · "+game.date;
+  showScr("live");updLiveUI();
+}
+function showScr(id){document.querySelectorAll(".screen").forEach(function(s){s.classList.remove("active");});document.getElementById("scr-"+id).classList.add("active");window.scrollTo({top:0,behavior:"smooth"});}
+function adj(key,d){curSet[key]=Math.max(0,(curSet[key]||0)+d);document.getElementById("v-"+key).textContent=curSet[key];}
+function updLiveUI(){
+  document.getElementById("set-label").textContent="SET "+curSet.set_num;
+  document.getElementById("set-subtxt").textContent=game.opponent+" · "+game.type;
+  document.getElementById("set-record").textContent=winsLosses[0]+" W — "+winsLosses[1]+" L";
+  document.getElementById("hdr-sets").textContent="SET "+curSet.set_num;
+  ["assists","set_errors","dump_kills","aces","service_errors","comm_positive","comm_missed"].forEach(function(k){document.getElementById("v-"+k).textContent=curSet[k]||0;});
+}
+function openEndSet(){
+  modalWL="";modalComm="";modalBL="";
+  document.getElementById("modal-set-ttl").textContent="End of SET "+curSet.set_num;
+  document.getElementById("score-us").value="";document.getElementById("score-them").value="";
+  ["wl-w","wl-l"].forEach(function(id){document.getElementById(id).classList.remove("sel");});
+  ["comm-quiet","comm-decent","comm-leading","bl-dropped","bl-steady","bl-strong"].forEach(function(id){document.getElementById(id).classList.remove("sel");});
+  document.getElementById("modal-endset").classList.add("show");
+}
+function selWL(v){modalWL=v;document.getElementById("wl-w").classList.toggle("sel",v==="W");document.getElementById("wl-l").classList.toggle("sel",v==="L");}
+function selComm(v){modalComm=v;["quiet","decent","leading"].forEach(function(x){document.getElementById("comm-"+x).classList.toggle("sel",v.toLowerCase()===x);});}
+function selBL(v){modalBL=v;["dropped","steady","strong"].forEach(function(x){document.getElementById("bl-"+x).classList.toggle("sel",v.toLowerCase()===x);});}
+function commitSet(){
+  curSet.score_us=parseInt(document.getElementById("score-us").value)||0;
+  curSet.score_them=parseInt(document.getElementById("score-them").value)||0;
+  curSet.result=modalWL||"?";curSet.communication=modalComm||"";curSet.body_language=modalBL||"";
+  if(modalWL==="W")winsLosses[0]++;else if(modalWL==="L")winsLosses[1]++;
+  game.sets.push(JSON.parse(JSON.stringify(curSet)));
+  document.getElementById("modal-endset").classList.remove("show");
+}
+function nextSet(){
+  commitSet();var n=curSet.set_num+1;
+  curSet={set_num:n,assists:0,set_errors:0,dump_kills:0,aces:0,service_errors:0,comm_positive:0,comm_missed:0};
+  updLiveUI();window.scrollTo({top:0,behavior:"smooth"});
+}
+function endGame(){commitSet();showScr("postgame");buildPostGameSummary();}
+function buildPostGameSummary(){
+  document.getElementById("game-summary-hdr").textContent=game.opponent+" · "+game.type+" · "+winsLosses[0]+"-"+winsLosses[1]+" ("+game.sets.length+" sets)";
+  var ss=document.getElementById("sets-summary");
+  ss.innerHTML=game.sets.map(function(s){
+    var cc=s.communication==="Leading"?"#4ecba0":s.communication==="Decent"?"#f0c040":"#ff6b5b";
+    var bc=s.body_language==="Strong"?"#4ecba0":s.body_language==="Steady"?"#f0c040":"#ff6b5b";
+    return "<div class='set-summary'><strong>Set "+s.set_num+"</strong> "+(s.result==="W"?"<span style='color:#4ecba0'>W</span>":"<span style='color:#ff6b5b'>L</span>")+
+      " ("+s.score_us+"-"+s.score_them+") · Assists: <strong>"+s.assists+"</strong> · Errors: <strong>"+s.set_errors+"</strong> · Aces: <strong>"+s.aces+"</strong><br>"+
+      "Comm: <span style='color:"+cc+"'>"+(s.communication||"—")+"</span> (✅"+s.comm_positive+"/😤"+s.comm_missed+") · BL: <span style='color:"+bc+"'>"+(s.body_language||"—")+"</span></div>";
+  }).join("");
+}
+function setEn(type,n){
+  postGame["energy_"+type]=n;
+  var gridIds={start:"energy-start-grid",end:"energy-end-grid",composure:"composure-grid"};
+  document.querySelectorAll("#"+gridIds[type]+" .f5btn").forEach(function(b,i){b.classList.toggle("sel",i+1===n);});
+}
+async function saveGame(){
+  var btn=document.getElementById("save-game-btn");btn.textContent="Saving...";btn.disabled=true;
+  postGame.coach_feedback=document.getElementById("coach-feedback").value;
+  postGame.focus_area=document.getElementById("focus-area").value;
+  var gameId="game_"+game.date+"_"+Date.now();
+  var fullGame=JSON.parse(JSON.stringify(game));fullGame.post_game=postGame;
+  fullGame.wins=winsLosses[0];fullGame.losses=winsLosses[1];
+  var t={assists:0,set_errors:0,aces:0,service_errors:0,comm_positive:0,comm_missed:0,dump_kills:0};
+  game.sets.forEach(function(s){Object.keys(t).forEach(function(k){t[k]+=(s[k]||0);});});
+  fullGame.totals=t;
+  var res=await ghMerge("game_logs",gameId,fullGame,"Add game "+game.date+" vs "+game.opponent);
+  if(res.ok){btn.textContent="✅ Game Saved!";btn.style.background="#4ecba0";}
+  else{btn.textContent="❌ Save failed — retry";btn.disabled=false;}
+}
+document.getElementById("game-date").value=new Date().toISOString().split("T")[0];
+</script>
+</body></html>
