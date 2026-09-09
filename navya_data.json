@@ -1,5 +1,17 @@
 {
-  "daily_logs": {},
+  "daily_logs": {
+    "2026-09-09": {
+      "metrics": {
+        "setting_reps": 100,
+        "footwork_reps": 25,
+        "serve_reps": 5
+      },
+      "feel": 0,
+      "notes": "",
+      "score": 4,
+      "date": "2026-09-09"
+    }
+  },
   "parent_logs": {
     "2026-09-09": {
       "bedtime": "23:15",
