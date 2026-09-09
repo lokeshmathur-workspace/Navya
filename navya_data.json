@@ -1,5 +1,15 @@
 {
   "daily_logs": {},
-  "parent_logs": {},
+  "parent_logs": {
+    "2026-09-09": {
+      "bedtime": "23:15",
+      "wake_time": "07:00",
+      "sleep_hrs": 7.8,
+      "breakfast": "red",
+      "lunch": "",
+      "dinner": "",
+      "notes": "2 slices of bread, milk,mercury drink"
+    }
+  },
   "game_logs": {}
 }
