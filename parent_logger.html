@@ -64,15 +64,15 @@ input:focus,textarea:focus{border-color:var(--gold)}
     <div class="sub">🥗 Nutrition Quality</div>
     <div style="margin-bottom:14px">
       <div style="font-size:12px;color:var(--dim);margin-bottom:8px">🌅 Breakfast</div>
-      <div class="rgy-grid"><button class="rgy-btn r btn" onclick="selMeal('breakfast','red',this)">🔴<br>Poor</button><button class="rgy-btn y btn" onclick="selMeal('breakfast','yellow',this)">🟡<br>OK</button><button class="rgy-btn g btn" onclick="selMeal('breakfast','green',this)">🟢<br>Good</button></div>
+      <div class="rgy-grid" id="grid-breakfast"><button class="rgy-btn r btn" onclick="selMeal('breakfast','red',this)">🔴<br>Poor</button><button class="rgy-btn y btn" onclick="selMeal('breakfast','yellow',this)">🟡<br>OK</button><button class="rgy-btn g btn" onclick="selMeal('breakfast','green',this)">🟢<br>Good</button></div>
     </div>
     <div style="margin-bottom:14px">
       <div style="font-size:12px;color:var(--dim);margin-bottom:8px">☀️ Lunch</div>
-      <div class="rgy-grid"><button class="rgy-btn r btn" onclick="selMeal('lunch','red',this)">🔴<br>Poor</button><button class="rgy-btn y btn" onclick="selMeal('lunch','yellow',this)">🟡<br>OK</button><button class="rgy-btn g btn" onclick="selMeal('lunch','green',this)">🟢<br>Good</button></div>
+      <div class="rgy-grid" id="grid-lunch"><button class="rgy-btn r btn" onclick="selMeal('lunch','red',this)">🔴<br>Poor</button><button class="rgy-btn y btn" onclick="selMeal('lunch','yellow',this)">🟡<br>OK</button><button class="rgy-btn g btn" onclick="selMeal('lunch','green',this)">🟢<br>Good</button></div>
     </div>
     <div>
       <div style="font-size:12px;color:var(--dim);margin-bottom:8px">🌙 Dinner</div>
-      <div class="rgy-grid"><button class="rgy-btn r btn" onclick="selMeal('dinner','red',this)">🔴<br>Poor</button><button class="rgy-btn y btn" onclick="selMeal('dinner','yellow',this)">🟡<br>OK</button><button class="rgy-btn g btn" onclick="selMeal('dinner','green',this)">🟢<br>Good</button></div>
+      <div class="rgy-grid" id="grid-dinner"><button class="rgy-btn r btn" onclick="selMeal('dinner','red',this)">🔴<br>Poor</button><button class="rgy-btn y btn" onclick="selMeal('dinner','yellow',this)">🟡<br>OK</button><button class="rgy-btn g btn" onclick="selMeal('dinner','green',this)">🟢<br>Good</button></div>
     </div>
   </div>
   <div class="card">
@@ -160,12 +160,52 @@ function buildLog(){
   }).join("");
 }
 
+function prefillForm(d){
+  if(!d)return;
+  if(d.bedtime)document.getElementById("bedtime").value=d.bedtime;
+  if(d.wake_time)document.getElementById("waketime").value=d.wake_time;
+  if(d.notes)document.getElementById("parent-notes").value=d.notes;
+  calcSleep();
+  ["breakfast","lunch","dinner"].forEach(function(meal){
+    var color=d[meal];if(!color)return;
+    meals[meal]=color;
+    var clsMap={red:"r",yellow:"y",green:"g"};
+    var grid=document.getElementById("grid-"+meal);
+    if(!grid)return;
+    grid.querySelectorAll(".rgy-btn").forEach(function(btn){
+      btn.classList.remove("sel");
+      if(btn.classList.contains(clsMap[color]))btn.classList.add("sel");
+    });
+  });
+}
+
 async function init(){
   document.getElementById("hdr-date").textContent=new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
-  document.getElementById("log-date").value=new Date().toISOString().split("T")[0];
+  var todayKey=new Date().toISOString().split("T")[0];
+  document.getElementById("log-date").value=todayKey;
   calcSleep();
   checkToken();if(!_T())return;
   var rd=await ghRead();ghData=rd.data;buildLog();
+  // Pre-populate today's form if data already exists for today
+  var todayData=ghData.parent_logs&&ghData.parent_logs[todayKey];
+  if(todayData){
+    prefillForm(todayData);
+    document.getElementById("save-btn").textContent="☁ Update Today";
+  }
+  // Re-populate when date changes
+  document.getElementById("log-date").addEventListener("change",function(){
+    var d=ghData&&ghData.parent_logs&&ghData.parent_logs[this.value];
+    if(d){prefillForm(d);document.getElementById("save-btn").textContent="☁ Update Entry";}
+    else{
+      meals={breakfast:"",lunch:"",dinner:""};
+      document.querySelectorAll(".rgy-btn").forEach(function(b){b.classList.remove("sel");});
+      document.getElementById("bedtime").value="21:15";
+      document.getElementById("waketime").value="06:30";
+      document.getElementById("parent-notes").value="";
+      calcSleep();
+      document.getElementById("save-btn").textContent="☁ Save to Cloud";
+    }
+  });
 }
 init();
 </script>
