@@ -331,7 +331,7 @@ function bldHist(){
   if(!sorted.length){ll.innerHTML="<div style='text-align:center;padding:20px;color:var(--muted);font-size:13px'>No history yet 🏐</div>";return;}
   ll.innerHTML=sorted.map(function(k){
     var d=dl[k],col=scol(d.score);
-    var note=d.notes?"<div style='font-size:11px;color:var(--muted);margin-top:2px;font-style:italic'>""+d.notes.slice(0,50)+(d.notes.length>50?"…":"")+""</div>":"";
+    var note=d.notes?"<div style='font-size:11px;color:var(--muted);margin-top:2px;font-style:italic'>"+d.notes.slice(0,50)+(d.notes.length>50?"…":"")+"</div>":"";
     return "<div class='lgrow'><div><div style='font-size:13px;font-weight:500'>"+fmtD(k)+"</div><div style='font-size:11px;color:var(--dim)'>"+FEELS[d.feel||0]+"</div>"+note+"</div><div style='font-size:22px;font-weight:700;color:"+col+"'>"+d.score+"%</div></div>";
   }).join("");
 }
