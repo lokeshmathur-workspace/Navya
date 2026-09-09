@@ -14,9 +14,9 @@
   },
   "parent_logs": {
     "2026-09-09": {
-      "bedtime": "21:15",
-      "wake_time": "06:30",
-      "sleep_hrs": 9.3,
+      "bedtime": "23:00",
+      "wake_time": "07:00",
+      "sleep_hrs": 8,
       "breakfast": "red",
       "lunch": "yellow",
       "dinner": "red",
