@@ -255,5 +255,6 @@ async function saveGame(){
   else{btn.textContent="❌ Save failed — retry";btn.disabled=false;}
 }
 document.getElementById("game-date").value=new Date().toISOString().split("T")[0];
+checkToken();
 </script>
 </body></html>

@@ -163,6 +163,8 @@ function buildLog(){
 async function init(){
   document.getElementById("hdr-date").textContent=new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
   document.getElementById("log-date").value=new Date().toISOString().split("T")[0];
+  calcSleep();
+  checkToken();if(!_T())return;
   var rd=await ghRead();ghData=rd.data;buildLog();
 }
 init();

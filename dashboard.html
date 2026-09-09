@@ -292,6 +292,7 @@ function exportGameCSV(){
 
 async function init(){
   document.getElementById("hdr-sub").textContent="Loading...";
+  checkToken();if(!_T())return;
   var rd=await ghRead();ghData=rd.data;
   var games=getGames();
   document.getElementById("hdr-sub").textContent=games.length+" games · "+(rd.cached?"offline cache":"live data");
