@@ -30,6 +30,15 @@
       "lunch": "green",
       "dinner": "green",
       "notes": ""
+    },
+    "2026-09-08": {
+      "bedtime": "23:15",
+      "wake_time": "07:00",
+      "sleep_hrs": 7.8,
+      "breakfast": "red",
+      "lunch": "yellow",
+      "dinner": "red",
+      "notes": ""
     }
   },
   "game_logs": {
