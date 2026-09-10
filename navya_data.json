@@ -72,6 +72,46 @@
         "comm_missed": 0,
         "dump_kills": 1
       }
+    },
+    "game_2026-09-05_1789051112247": {
+      "opponent": "Test",
+      "type": "Club B",
+      "date": "2026-09-05",
+      "sets": [
+        {
+          "set_num": 1,
+          "assists": 0,
+          "set_errors": 0,
+          "dump_kills": 0,
+          "aces": 0,
+          "service_errors": 0,
+          "comm_positive": 2,
+          "comm_missed": 1,
+          "score_us": 0,
+          "score_them": 0,
+          "result": "?",
+          "communication": "",
+          "body_language": ""
+        }
+      ],
+      "post_game": {
+        "energy_start": 0,
+        "energy_end": 0,
+        "composure": 0,
+        "coach_feedback": "",
+        "focus_area": ""
+      },
+      "wins": 0,
+      "losses": 0,
+      "totals": {
+        "assists": 0,
+        "set_errors": 0,
+        "aces": 0,
+        "service_errors": 0,
+        "comm_positive": 2,
+        "comm_missed": 1,
+        "dump_kills": 0
+      }
     }
   }
 }
