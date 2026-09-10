@@ -28,7 +28,7 @@
       "sleep_hrs": 7.8,
       "breakfast": "yellow",
       "lunch": "green",
-      "dinner": "",
+      "dinner": "green",
       "notes": ""
     }
   },
