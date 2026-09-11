@@ -51,46 +51,6 @@
     }
   },
   "game_logs": {
-    "game_2026-09-09_1788915210051": {
-      "opponent": "Test",
-      "type": "Club B",
-      "date": "2026-09-09",
-      "sets": [
-        {
-          "set_num": 1,
-          "assists": 1,
-          "set_errors": 1,
-          "dump_kills": 1,
-          "aces": 1,
-          "service_errors": 1,
-          "comm_positive": 0,
-          "comm_missed": 0,
-          "score_us": 0,
-          "score_them": 0,
-          "result": "?",
-          "communication": "",
-          "body_language": ""
-        }
-      ],
-      "post_game": {
-        "energy_start": 0,
-        "energy_end": 0,
-        "composure": 0,
-        "coach_feedback": "",
-        "focus_area": ""
-      },
-      "wins": 0,
-      "losses": 0,
-      "totals": {
-        "assists": 1,
-        "set_errors": 1,
-        "aces": 1,
-        "service_errors": 1,
-        "comm_positive": 0,
-        "comm_missed": 0,
-        "dump_kills": 1
-      }
-    },
     "game_2026-09-11_1789089965260": {
       "opponent": "Arlington game",
       "type": "HS JV",
