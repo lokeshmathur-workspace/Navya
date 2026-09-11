@@ -120,16 +120,6 @@
         "comm_missed": 40,
         "dump_kills": 0
       }
-    },
-    "draft_2026-09-11_Test_2": {
-      "opponent": "Test 2",
-      "type": "Club B",
-      "date": "2026-09-11",
-      "wins": 0,
-      "losses": 0,
-      "in_progress": true,
-      "post_game": {},
-      "sets": []
     }
   }
 }
