@@ -121,6 +121,76 @@
         "comm_missed": 1,
         "dump_kills": 0
       }
+    },
+    "game_2026-09-11_1789089965260": {
+      "opponent": "Arlington game",
+      "type": "HS JV",
+      "date": "2026-09-11",
+      "sets": [
+        {
+          "set_num": 1,
+          "assists": 0,
+          "set_errors": 0,
+          "dump_kills": 0,
+          "aces": 0,
+          "service_errors": 0,
+          "comm_positive": 0,
+          "comm_missed": 0,
+          "score_us": 0,
+          "score_them": 0,
+          "result": "L",
+          "communication": "",
+          "body_language": ""
+        },
+        {
+          "set_num": 2,
+          "assists": 10,
+          "set_errors": 9,
+          "dump_kills": 0,
+          "aces": 2,
+          "service_errors": 1,
+          "comm_positive": 2,
+          "comm_missed": 20,
+          "score_us": 0,
+          "score_them": 0,
+          "result": "W",
+          "communication": "Decent",
+          "body_language": "Steady"
+        },
+        {
+          "set_num": 3,
+          "assists": 12,
+          "set_errors": 7,
+          "dump_kills": 0,
+          "aces": 2,
+          "service_errors": 3,
+          "comm_positive": 5,
+          "comm_missed": 20,
+          "score_us": 0,
+          "score_them": 0,
+          "result": "L",
+          "communication": "Quiet",
+          "body_language": "Dropped"
+        }
+      ],
+      "post_game": {
+        "energy_start": 0,
+        "energy_end": 0,
+        "composure": 0,
+        "coach_feedback": "",
+        "focus_area": ""
+      },
+      "wins": 1,
+      "losses": 2,
+      "totals": {
+        "assists": 22,
+        "set_errors": 16,
+        "aces": 4,
+        "service_errors": 4,
+        "comm_positive": 7,
+        "comm_missed": 40,
+        "dump_kills": 0
+      }
     }
   }
 }
