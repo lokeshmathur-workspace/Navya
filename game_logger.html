@@ -143,7 +143,7 @@ input:focus,textarea:focus{border-color:var(--gold)}
     <div class="sub" style="margin-bottom:8px">One Thing to Work On Before Next Game</div>
     <input type="text" id="focus-area" placeholder="e.g. Back-set accuracy, communication in set 3">
   </div>
-  <button class="save-game-btn btn" id="save-game-btn" onclick="saveGame()">☁ Save Game to Cloud</button>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px"><button class="save-game-btn btn" id="save-local-btn" onclick="saveLocally()" style="background:linear-gradient(135deg,#4a9eff,#1a5fa8);font-size:14px">📱 Save Locally</button><button class="save-game-btn btn" id="save-game-btn" onclick="saveGame()" style="font-size:14px">☁ Save to Cloud</button></div><div id="pending-panel" style="display:none;background:#1a1f2b;border:1px solid rgba(240,192,64,.4);border-radius:10px;padding:14px;margin-bottom:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:#f0c040">📱 <span id="pending-count">0</span> game(s) saved locally</div><button id="upload-pending-btn" onclick="uploadLocalGames()" style="background:rgba(78,203,160,.15);border:1px solid rgba(78,203,160,.4);border-radius:8px;color:#4ecba0;font-size:12px;font-weight:700;cursor:pointer;padding:6px 14px;font-family:inherit">☁ Upload All to Cloud</button></div><div id="pending-list" style="font-size:12px"></div><div style="font-size:10px;color:#4a5568;margin-top:8px">These games are stored on this device. Upload when you have internet access.</div></div>
   <div style="height:20px"></div>
 </div>
 
@@ -256,5 +256,6 @@ async function saveGame(){
 }
 document.getElementById("game-date").value=new Date().toISOString().split("T")[0];
 checkToken();
+renderPending();
 </script>
 </body></html>
