@@ -59,9 +59,9 @@ input:focus,textarea:focus{border-color:var(--gold)}
 .lasttap{font-size:9px;font-family:monospace;color:var(--muted);text-align:center;margin-bottom:5px;min-height:12px;flex-shrink:0}
 .stats{display:flex;flex-direction:column;gap:6px}
 .srow{display:flex;align-items:stretch;gap:5px;height:62px}
-.slbl{width:66px;flex-shrink:0;background:var(--panel);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
-.slbl-icon{font-size:15px;line-height:1}
-.slbl-txt{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text);text-align:center;line-height:1.2}
+.slbl{width:82px;flex-shrink:0;background:var(--panel);border:1px solid var(--border);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.slbl-icon{font-size:22px;line-height:1}
+.slbl-txt{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--text);text-align:center;line-height:1.3}
 .btns{flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
 .ryg{border-radius:8px;border:1.5px solid;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:100%}
 .ryg:active{transform:scale(.92)}
@@ -127,6 +127,24 @@ input:focus,textarea:focus{border-color:var(--gold)}
 .toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--mint);color:#0a0c10;border-radius:16px;padding:6px 16px;font-size:12px;font-weight:700;white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none;z-index:500}
 .toast.show{opacity:1}
 @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.history-hdr{background:#12161e;border-bottom:2px solid var(--coral);padding:14px 18px 12px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.history-body{flex:1;overflow-y:auto;padding:14px}
+.new-game-btn{padding:10px 18px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--coral),#cc3322);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.game-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;animation:fi .25s ease}
+.game-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.game-opp{font-size:16px;font-weight:700;color:var(--text)}
+.game-meta{font-size:11px;color:var(--dim);margin-top:3px}
+.game-wl{font-size:20px;font-weight:800;font-family:monospace;flex-shrink:0}
+.game-sets-row{font-size:10px;color:var(--muted);font-family:monospace;margin-bottom:10px;padding:6px 8px;background:rgba(255,255,255,.03);border-radius:6px;line-height:1.8}
+.game-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gedit{padding:10px;border:1px solid rgba(240,192,64,.4);border-radius:8px;background:rgba(240,192,64,.1);color:var(--gold);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.gdel{padding:10px;border:1px solid rgba(255,107,91,.4);border-radius:8px;background:rgba(255,107,91,.1);color:var(--coral);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.gedit:active,.gdel:active{transform:scale(.96)}
+.no-games{text-align:center;padding:40px 20px;color:var(--muted)}
+.no-games div:first-child{font-size:36px;margin-bottom:10px}
+.pending-banner{background:rgba(240,192,64,.08);border:1px solid rgba(240,192,64,.3);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.edit-badge{background:rgba(240,192,64,.2);border:1px solid rgba(240,192,64,.5);border-radius:6px;padding:2px 10px;font-size:10px;font-weight:700;color:var(--gold);font-family:monospace;letter-spacing:1px}
+
 </style>
 </head>
 <body>
@@ -268,7 +286,7 @@ input:focus,textarea:focus{border-color:var(--gold)}
     </div>
   </div>
 
-  <div class="live-footer">
+  <div class="live-footer" id="live-footer">
     <button class="fp btn" onclick="saveProgress()">☁ Save Progress</button>
     <button class="fe btn" onclick="openEndSet()">End Set →</button>
   </div>
@@ -422,6 +440,198 @@ function showScr(id) {
 function showLive() { showScr("scr-live"); renderLive(); }
 
 // ── Live screen ────────────────────────────────────────────────────────────
+// ── History & Edit State ───────────────────────────────────────────────────
+var editMode = false;
+var editGameId = null;
+var allGames = {};
+
+function newGame() {
+  editMode = false; editGameId = null;
+  game = {opponent:"", type:"", date:"", sets:[]};
+  curIdx = 0; tapHistory = [];
+  selectedType = "";
+  document.querySelectorAll(".type-btn").forEach(function(b){b.classList.remove("sel");});
+  document.getElementById("opponent").value = "";
+  document.getElementById("game-date").value = new Date().toISOString().split("T")[0];
+  showScr("scr-setup");
+}
+
+// ── Build history list ─────────────────────────────────────────────────────
+function buildHistory() {
+  var el = document.getElementById("history-list");
+  var entries = [];
+  Object.keys(allGames).forEach(function(id) {
+    var g = allGames[id];
+    if (g && g.opponent) entries.push({id:id, g:g});
+  });
+  // Sort newest first
+  entries.sort(function(a,b){ return (b.g.date||"").localeCompare(a.g.date||""); });
+
+  // Pending local saves banner
+  var locals = getLocalGames ? getLocalGames() : [];
+  var banner = locals.length
+    ? "<div class='pending-banner'>"
+      +"<div style='font-size:12px;color:var(--gold);font-weight:600'>📱 "+locals.length+" game(s) saved locally</div>"
+      +"<button onclick='uploadLocalGames()' style='background:rgba(78,203,160,.15);border:1px solid rgba(78,203,160,.4);border-radius:6px;color:#4ecba0;font-size:11px;font-weight:700;cursor:pointer;padding:5px 12px;font-family:inherit'>☁ Upload All</button>"
+      +"</div>"
+    : "";
+
+  if (!entries.length) {
+    el.innerHTML = banner + "<div class='no-games'><div>🏐</div><div style='font-size:15px;font-weight:600;color:var(--dim);margin-bottom:6px'>No games logged yet</div><div style='font-size:12px'>Tap New Game to get started</div></div>";
+    return;
+  }
+
+  el.innerHTML = banner + entries.map(function(e) {
+    var id = e.id, g = e.g;
+    var w = g.wins||0, l = g.losses||0;
+    var col = w>l ? "#4ecba0" : w<l ? "#ff6b5b" : "#f0c040";
+    var sets = g.sets || [];
+    var setRows = sets.filter(function(s){return s.result;}).map(function(s) {
+      var rc = s.result==="W" ? "#4ecba0" : "#ff6b5b";
+      return "Set "+s.set_num+" <span style='color:"+rc+"'>"+s.result+"</span> "
+        +s.score_us+"-"+s.score_them
+        +" | Ast:"+s.assists+" Err:"+s.set_errors+" Ace:"+s.aces;
+    }).join("<br>");
+    return "<div class='game-card'>"
+      +"<div class='game-card-top'>"
+      +"<div><div class='game-opp'>"+g.opponent+"</div>"
+      +"<div class='game-meta'>"+g.type+" &middot; "+g.date+"</div></div>"
+      +"<div class='game-wl' style='color:"+col+"'>"+w+"W&nbsp;"+l+"L</div>"
+      +"</div>"
+      +(setRows ? "<div class='game-sets-row'>"+setRows+"</div>" : "")
+      +"<div class='game-actions'>"
+      +"<button class='gedit' onclick='editGame(\""+id+"\")'>✏️ Edit</button>"
+      +"<button class='gdel' onclick='deleteGameEntry(\""+id+"\")'>🗑 Delete</button>"
+      +"</div></div>";
+  }).join("");
+}
+
+// ── Edit a game ────────────────────────────────────────────────────────────
+function editGame(gameId) {
+  var g = allGames[gameId];
+  if (!g) { showToast("Game not found"); return; }
+  editMode = true;
+  editGameId = gameId;
+  // Reconstruct game state from saved data
+  game.opponent = g.opponent;
+  game.type = g.type;
+  game.date = g.date;
+  game.sets = (g.sets||[]).map(function(s, i) {
+    return {
+      set_num: s.set_num || i+1,
+      setting: s.setting || {r:s.set_errors||0, y:0, g:s.assists||0},
+      dump:    s.dump    || {r:0, y:0, g:s.dump_kills||0},
+      blocks:  s.blocks  || {r:0, y:0, g:s.block_kills||0},
+      digs:    s.digs    || {r:0, y:0, g:0},
+      serving: s.serving || {r:s.service_errors||0, y:0, g:s.aces||0},
+      comm:    s.comm    || {pos:s.comm_positive||0, neg:s.comm_missed||0},
+      score_us: s.score_us||0, score_them: s.score_them||0,
+      result: s.result||"", communication: s.communication||"",
+      body_language: s.body_language||"", finalized: true
+    };
+  });
+  if (!game.sets.length) game.sets = [newSet(1)];
+  curIdx = 0; tapHistory = [];
+  renderEditFooter();
+  renderEditFooter();
+  showScr("scr-live");
+  renderLive();
+  showToast("Editing — tap buttons to adjust, Save when done");
+}
+
+function renderEditFooter() {
+  var footer = document.getElementById("live-footer");
+  if (!footer) return;
+  if (editMode) {
+    footer.innerHTML =
+      "<button class='fp btn' onclick='deleteCurrentSet()' style='border-color:rgba(255,107,91,.4);background:rgba(255,107,91,.1);color:var(--coral)'>🗑 Delete Set</button>"
+      +"<button class='fe btn' onclick='saveEditedGame()'>✅ Save Changes</button>";
+  } else {
+    footer.innerHTML =
+      "<button class='fp btn' onclick='saveProgress()'>☁ Save Progress</button>"
+      +"<button class='fe btn' onclick='openEndSet()'>End Set →</button>";
+  }
+}
+
+function deleteCurrentSet() {
+  if (game.sets.length <= 1) { showToast("Cannot delete the only set"); return; }
+  if (!confirm("Delete Set " + curSet().set_num + "? This cannot be undone.")) return;
+  game.sets.splice(curIdx, 1);
+  game.sets.forEach(function(s,i){s.set_num=i+1;});
+  if (curIdx >= game.sets.length) curIdx = game.sets.length - 1;
+  tapHistory = tapHistory.filter(function(t){return t.idx !== curIdx;});
+  renderLive();
+  showToast("Set deleted");
+}
+
+async function saveEditedGame() {
+  showToast("Saving...");
+  var payload = buildGamePayload(false);
+  var res = await ghMerge("game_logs", editGameId, payload, "Edit: " + game.opponent + " " + game.date);
+  if (res.ok) {
+    allGames[editGameId] = payload;
+    showToast("Changes saved ✅");
+    editMode = false; editGameId = null;
+    buildHistory();
+    showScr("scr-history");
+  } else {
+    showToast("Save failed — check connection");
+  }
+}
+
+// ── Delete game from history ───────────────────────────────────────────────
+async function deleteGameEntry(gameId) {
+  var g = allGames[gameId];
+  var name = g ? (g.opponent + " · " + g.date) : gameId;
+  if (!confirm("Delete game vs " + name + "?\nThis cannot be undone.")) return;
+  var rd = await ghRead();
+  if (rd.data.game_logs && rd.data.game_logs[gameId]) {
+    delete rd.data.game_logs[gameId];
+    var res = await ghWrite(rd.data, rd.sha, "Delete: " + name);
+    if (res.ok) {
+      delete allGames[gameId];
+      buildHistory();
+      showToast("Game deleted");
+    } else showToast("Delete failed — retry");
+  }
+}
+
+async function saveAndGoToHistory(){
+  showToast("Saving game...");
+  var gameId = "game_" + game.date + "_" + Date.now();
+  var payload = buildGamePayload(false);
+  var res = await ghMerge("game_logs", gameId, payload, "Game: " + game.date + " vs " + game.opponent);
+  if (res.ok) {
+    clearDraft();
+    allGames[gameId] = payload;
+    showToast("Game saved ✅");
+  } else {
+    // Fall back to local save
+    payload._localId = gameId;
+    payload._savedAt = new Date().toLocaleString();
+    var locals = getLocalGames();
+    locals.push(payload);
+    localStorage.setItem(LOCAL_KEY, JSON.stringify(locals));
+    clearDraft();
+    showToast("No internet — saved locally 📱");
+  }
+  editMode = false; editGameId = null;
+  buildHistory();
+  showScr("scr-history");
+  renderEditFooter();
+}
+function zeroDisplay(){
+  ["setting","dump","blocks","digs","serving"].forEach(function(stat){
+    ["r","y","g"].forEach(function(c){
+      var el=document.getElementById(stat+"-"+c);
+      if(el)el.textContent="0";
+    });
+  });
+  ["comm-pos","comm-neg"].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent="0";});
+  ["c-ast","c-err","c-ace","c-svc","c-blk"].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent="0";});
+  var lt=document.getElementById("lasttap");if(lt)lt.textContent="";
+  var ut=document.getElementById("undo-tag");if(ut)ut.textContent="nothing yet";
+}
 function tap(stat, color) {
   var s = curSet();
   s[stat][color]++;
@@ -465,10 +675,15 @@ function renderLive() {
   document.getElementById("ll").textContent = losses() + "L";
   document.getElementById("hdr-game-info").textContent = game.opponent + " · " + game.type;
   document.getElementById("arr-prev").disabled = curIdx === 0;
-  document.getElementById("arr-next").disabled = !curSet().finalized && curIdx === game.sets.length - 1;
-  // Show viewing indicator if not on live set
-  var isLive = curIdx === game.sets.length - 1 && !curSet().finalized;
-  document.getElementById("hdr-lbl").textContent = isLive ? "⚡ Game Logger · Live" : "👁 Viewing Set " + s.set_num + " — tap ▶ to return";
+  document.getElementById("arr-next").disabled = editMode
+    ? curIdx >= game.sets.length - 1
+    : (!curSet().finalized && curIdx === game.sets.length - 1);
+  var isLive = !editMode && curIdx === game.sets.length - 1 && !curSet().finalized;
+  document.getElementById("hdr-lbl").textContent = isLive ? "⚡ Game Logger · Live"
+    : editMode ? "✏️ Editing: " + game.opponent
+    : "👁 Viewing Set " + s.set_num + " — tap ▶ to return";
+  var eb = document.getElementById("edit-badge");
+  if(eb) eb.style.display = editMode ? "inline-block" : "none";
   renderCounts();
   document.getElementById("lasttap").textContent = s.finalized ? "✅ Set " + s.set_num + " finalized" : "";
   document.getElementById("undo-tag").textContent = tapHistory.length ?
@@ -530,13 +745,13 @@ function confirmEndSet(endGame) {
   document.getElementById("modal-endset").classList.remove("show");
   saveDraft();
   if (endGame) {
-    buildPostGameSummary();
-    renderPending();
-    showScr("scr-postgame");
+    saveAndGoToHistory();
   } else {
     // Add new set and navigate to it
     game.sets.push(newSet(game.sets.length + 1));
     curIdx = game.sets.length - 1;
+    tapHistory = [];
+    zeroDisplay();
     renderLive();
     showToast("Set " + s.set_num + " done! Logging Set " + curSet().set_num);
   }
@@ -627,8 +842,12 @@ async function saveGame() {
   var res = await ghMerge("game_logs", gameId, payload, "Game: " + game.date + " vs " + game.opponent);
   if (res.ok) {
     clearDraft();
-    btn.style.background = "#4ecba0";
-    btn.textContent = "✅ Game Saved!";
+    allGames[gameId] = payload;
+    showToast("Game saved ✅");
+    setTimeout(function(){
+      editMode=false;editGameId=null;
+      buildHistory();showScr("scr-history");renderEditFooter();
+    }, 1200);
     // Remove any draft entry
     var rd = await ghRead();
     var draftKey = "draft_" + game.date + "_" + game.opponent.replace(/\s/g,"_").slice(0,10);
@@ -650,14 +869,35 @@ function showToast(m) {
 }
 
 // ── Init ───────────────────────────────────────────────────────────────────
-function init() {
+async function init() {
   document.getElementById("setup-date").textContent = new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
   document.getElementById("game-date").value = new Date().toISOString().split("T")[0];
   checkToken();
   if (!_T()) return;
+  showScr("scr-history");
+  var rd = await ghRead();
+  allGames = (rd.data && rd.data.game_logs) ? rd.data.game_logs : {};
+  var st = document.getElementById("history-status");
+  if(st) st.style.display="none";
+  buildHistory();
   checkDraft();
 }
 init();
 </script>
+
+<!-- HISTORY SCREEN -->
+<div class="screen" id="scr-history">
+  <div class="history-hdr">
+    <div>
+      <div style="font-family:monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--coral);margin-bottom:2px">⚡ Game Logger</div>
+      <div style="font-size:21px;font-weight:700;color:var(--text)">Game History</div>
+    </div>
+    <button class="new-game-btn btn" onclick="newGame()">+ New Game</button>
+  </div>
+  <div class="history-body">
+    <div style="font-size:11px;color:var(--muted);text-align:center;padding:6px 0 10px" id="history-status">Loading games...</div>
+    <div id="history-list"></div>
+  </div>
+</div>
 </body>
 </html>
