@@ -554,31 +554,63 @@ function editGame(gameId) {
   if (!g) { showToast("Game not found"); return; }
   editMode = true;
   editGameId = gameId;
-  // Reconstruct game state from saved data
-  game.opponent = g.opponent;
-  game.type = g.type;
-  game.date = g.date;
-  game.sets = (g.sets||[]).map(function(s, i) {
+  game.opponent = g.opponent || "";
+  game.type = g.type || "";
+  game.date = g.date || "";
+
+  // Deep-copy each set to avoid shared reference mutation
+  game.sets = (g.sets || []).map(function(s, i) {
+    // Support both old format (assists as number) and new format (setting as object)
+    var setting, dump, blocks, digs, serving, comm;
+
+    if (s.setting && typeof s.setting === "object") {
+      setting = {r: s.setting.r || 0, y: s.setting.y || 0, g: s.setting.g || 0};
+    } else {
+      setting = {r: s.set_errors || 0, y: 0, g: s.assists || 0};
+    }
+    if (s.dump && typeof s.dump === "object") {
+      dump = {r: s.dump.r || 0, y: s.dump.y || 0, g: s.dump.g || 0};
+    } else {
+      dump = {r: 0, y: 0, g: s.dump_kills || 0};
+    }
+    if (s.blocks && typeof s.blocks === "object") {
+      blocks = {r: s.blocks.r || 0, y: s.blocks.y || 0, g: s.blocks.g || 0};
+    } else {
+      blocks = {r: 0, y: 0, g: s.block_kills || 0};
+    }
+    if (s.digs && typeof s.digs === "object") {
+      digs = {r: s.digs.r || 0, y: s.digs.y || 0, g: s.digs.g || 0};
+    } else {
+      digs = {r: 0, y: 0, g: 0};
+    }
+    if (s.serving && typeof s.serving === "object") {
+      serving = {r: s.serving.r || 0, y: s.serving.y || 0, g: s.serving.g || 0};
+    } else {
+      serving = {r: s.service_errors || 0, y: 0, g: s.aces || 0};
+    }
+    if (s.comm && typeof s.comm === "object") {
+      comm = {pos: s.comm.pos || 0, neg: s.comm.neg || 0};
+    } else {
+      comm = {pos: s.comm_positive || 0, neg: s.comm_missed || 0};
+    }
+
     return {
-      set_num: s.set_num || i+1,
-      setting: s.setting || {r:s.set_errors||0, y:0, g:s.assists||0},
-      dump:    s.dump    || {r:0, y:0, g:s.dump_kills||0},
-      blocks:  s.blocks  || {r:0, y:0, g:s.block_kills||0},
-      digs:    s.digs    || {r:0, y:0, g:0},
-      serving: s.serving || {r:s.service_errors||0, y:0, g:s.aces||0},
-      comm:    s.comm    || {pos:s.comm_positive||0, neg:s.comm_missed||0},
-      score_us: s.score_us||0, score_them: s.score_them||0,
-      result: s.result||"", communication: s.communication||"",
-      body_language: s.body_language||"", finalized: true
+      set_num: s.set_num || i + 1,
+      setting: setting, dump: dump, blocks: blocks,
+      digs: digs, serving: serving, comm: comm,
+      score_us: s.score_us || 0, score_them: s.score_them || 0,
+      result: s.result || "", communication: s.communication || "",
+      body_language: s.body_language || "", finalized: true
     };
   });
+
   if (!game.sets.length) game.sets = [newSet(1)];
-  curIdx = 0; tapHistory = [];
-  renderEditFooter();
+  curIdx = 0;
+  tapHistory = [];
   renderEditFooter();
   showScr("scr-live");
   renderLive();
-  showToast("Editing — tap buttons to adjust, Save when done");
+  showToast("Editing — navigate sets, adjust stats, Save when done");
 }
 
 function renderEditFooter() {
@@ -609,9 +641,16 @@ function deleteCurrentSet() {
 async function saveEditedGame() {
   showToast("Saving...");
   var payload = buildGamePayload(false);
-  var res = await ghMerge("game_logs", editGameId, payload, "Edit: " + game.opponent + " " + game.date);
+  var gid = editGameId;
+  var res = await ghMerge("game_logs", gid, payload, "Edit: " + game.opponent + " " + game.date);
   if (res.ok) {
-    allGames[editGameId] = payload;
+    // Re-read from GitHub to ensure allGames has fresh data
+    var rd = await ghRead();
+    if (rd.data && rd.data.game_logs) {
+      allGames = rd.data.game_logs;
+    } else {
+      allGames[gid] = payload;
+    }
     showToast("Changes saved ✅");
     editMode = false; editGameId = null;
     buildHistory();
