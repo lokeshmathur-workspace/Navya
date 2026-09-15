@@ -127,8 +127,14 @@
       "date": "2026-09-14",
       "wins": 2,
       "losses": 1,
-      "in_progress": true,
-      "post_game": {},
+      "in_progress": false,
+      "post_game": {
+        "energy_start": 0,
+        "energy_end": 0,
+        "composure": 0,
+        "coach_feedback": "",
+        "focus_area": ""
+      },
       "sets": [
         {
           "set_num": 1,
@@ -264,51 +270,6 @@
           "block_kills": 0,
           "comm_positive": 7,
           "comm_missed": 27
-        },
-        {
-          "set_num": 4,
-          "result": "?",
-          "score_us": 0,
-          "score_them": 0,
-          "communication": "",
-          "body_language": "",
-          "setting": {
-            "r": 0,
-            "y": 0,
-            "g": 0
-          },
-          "dump": {
-            "r": 0,
-            "y": 0,
-            "g": 0
-          },
-          "blocks": {
-            "r": 0,
-            "y": 0,
-            "g": 0
-          },
-          "digs": {
-            "r": 0,
-            "y": 0,
-            "g": 0
-          },
-          "serving": {
-            "r": 0,
-            "y": 0,
-            "g": 0
-          },
-          "comm": {
-            "pos": 0,
-            "neg": 0
-          },
-          "assists": 0,
-          "set_errors": 0,
-          "dump_kills": 0,
-          "aces": 0,
-          "service_errors": 0,
-          "block_kills": 0,
-          "comm_positive": 0,
-          "comm_missed": 0
         }
       ]
     }
