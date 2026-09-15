@@ -445,6 +445,14 @@ var editMode = false;
 var editGameId = null;
 var allGames = {};
 
+async function refreshHistory(){
+  var st=document.getElementById("history-status");
+  if(st){st.textContent="Refreshing...";st.style.display="block";}
+  var rd=await ghRead();
+  allGames=(rd.data&&rd.data.game_logs)?rd.data.game_logs:{};
+  buildHistory();
+  showToast("Refreshed — "+Object.keys(allGames).length+" games");
+}
 function newGame() {
   editMode = false; editGameId = null;
   game = {opponent:"", type:"", date:"", sets:[]};
@@ -459,49 +467,66 @@ function newGame() {
 // ── Build history list ─────────────────────────────────────────────────────
 function buildHistory() {
   var el = document.getElementById("history-list");
+  // Accept any game with sets, opponent, or date - same logic as dashboard
   var entries = [];
   Object.keys(allGames).forEach(function(id) {
     var g = allGames[id];
-    if (g && g.opponent) entries.push({id:id, g:g});
+    if (g && typeof g === "object" && (g.sets || g.opponent || g.date)) {
+      entries.push({id:id, g:g});
+    }
   });
-  // Sort newest first
-  entries.sort(function(a,b){ return (b.g.date||"").localeCompare(a.g.date||""); });
+  entries.sort(function(a,b){
+    return (b.g.date||"").localeCompare(a.g.date||"");
+  });
 
-  // Pending local saves banner
-  var locals = getLocalGames ? getLocalGames() : [];
+  var st = document.getElementById("history-status");
+  if (st) {
+    if (entries.length) {
+      st.textContent = entries.length + " game" + (entries.length!==1?"s":"") + " logged";
+      st.style.display = "block";
+    } else { st.style.display = "none"; }
+  }
+
+  var locals = (typeof getLocalGames==="function") ? getLocalGames() : [];
   var banner = locals.length
-    ? "<div class='pending-banner'>"
-      +"<div style='font-size:12px;color:var(--gold);font-weight:600'>📱 "+locals.length+" game(s) saved locally</div>"
-      +"<button onclick='uploadLocalGames()' style='background:rgba(78,203,160,.15);border:1px solid rgba(78,203,160,.4);border-radius:6px;color:#4ecba0;font-size:11px;font-weight:700;cursor:pointer;padding:5px 12px;font-family:inherit'>☁ Upload All</button>"
-      +"</div>"
+    ? "<div class='pending-banner'><div style='font-size:12px;color:var(--gold);font-weight:600'>&#128241; "+locals.length+" saved locally</div>"
+      +"<button onclick='uploadLocalGames()' style='background:rgba(78,203,160,.15);border:1px solid rgba(78,203,160,.4);border-radius:6px;color:#4ecba0;font-size:11px;font-weight:700;cursor:pointer;padding:5px 12px;font-family:inherit'>&#9729; Upload All</button></div>"
     : "";
 
   if (!entries.length) {
-    el.innerHTML = banner + "<div class='no-games'><div>🏐</div><div style='font-size:15px;font-weight:600;color:var(--dim);margin-bottom:6px'>No games logged yet</div><div style='font-size:12px'>Tap New Game to get started</div></div>";
+    el.innerHTML = banner + "<div class='no-games'><div>&#127950;</div>"
+      +"<div style='font-size:15px;font-weight:600;color:var(--dim);margin-bottom:6px'>No games logged yet</div>"
+      +"<div style='font-size:12px'>Tap New Game to get started</div></div>";
     return;
   }
 
   el.innerHTML = banner + entries.map(function(e) {
     var id = e.id, g = e.g;
-    var w = g.wins||0, l = g.losses||0;
-    var col = w>l ? "#4ecba0" : w<l ? "#ff6b5b" : "#f0c040";
     var sets = g.sets || [];
-    var setRows = sets.filter(function(s){return s.result;}).map(function(s) {
+    var w = (g.wins != null) ? g.wins : sets.filter(function(s){return s.result==="W";}).length;
+    var l = (g.losses != null) ? g.losses : sets.filter(function(s){return s.result==="L";}).length;
+    var col = w>l ? "#4ecba0" : w<l ? "#ff6b5b" : "#f0c040";
+    var opp = g.opponent || "Unknown";
+    var typ = g.type || "";
+    var dt  = g.date || "";
+    var setRows = sets.filter(function(s){return s.result || s.score_us!=null;}).map(function(s) {
       var rc = s.result==="W" ? "#4ecba0" : "#ff6b5b";
-      return "Set "+s.set_num+" <span style='color:"+rc+"'>"+s.result+"</span> "
-        +s.score_us+"-"+s.score_them
-        +" | Ast:"+s.assists+" Err:"+s.set_errors+" Ace:"+s.aces;
+      var ast = s.assists != null ? s.assists : (s.setting ? s.setting.g : 0);
+      var err = s.set_errors != null ? s.set_errors : (s.setting ? s.setting.r : 0);
+      var ace = s.aces != null ? s.aces : (s.serving ? s.serving.g : 0);
+      return "Set "+(s.set_num||"?")+(s.result?" <span style='color:"+rc+"'>"+s.result+"</span>":"")
+        +(s.score_us!=null ? " "+s.score_us+"-"+s.score_them : "")+" | Ast:"+ast+" Err:"+err+" Ace:"+ace;
     }).join("<br>");
     return "<div class='game-card'>"
       +"<div class='game-card-top'>"
-      +"<div><div class='game-opp'>"+g.opponent+"</div>"
-      +"<div class='game-meta'>"+g.type+" &middot; "+g.date+"</div></div>"
+      +"<div><div class='game-opp'>"+opp+"</div>"
+      +"<div class='game-meta'>"+(typ?typ+" &middot; ":"")+dt+" &middot; "+sets.length+" set"+(sets.length!==1?"s":"")+"</div></div>"
       +"<div class='game-wl' style='color:"+col+"'>"+w+"W&nbsp;"+l+"L</div>"
       +"</div>"
-      +(setRows ? "<div class='game-sets-row'>"+setRows+"</div>" : "")
+      +(setRows?"<div class='game-sets-row'>"+setRows+"</div>":"")
       +"<div class='game-actions'>"
-      +"<button class='gedit' onclick='editGame(\""+id+"\")'>✏️ Edit</button>"
-      +"<button class='gdel' onclick='deleteGameEntry(\""+id+"\")'>🗑 Delete</button>"
+      +"<button class='gedit btn' onclick='editGame(\""+id+"\")'>&#9998; Edit</button>"
+      +"<button class='gdel btn' onclick='deleteGameEntry(\""+id+"\")'>&#128465; Delete</button>"
       +"</div></div>";
   }).join("");
 }
@@ -892,7 +917,7 @@ init();
       <div style="font-family:monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--coral);margin-bottom:2px">⚡ Game Logger</div>
       <div style="font-size:21px;font-weight:700;color:var(--text)">Game History</div>
     </div>
-    <button class="new-game-btn btn" onclick="newGame()">+ New Game</button>
+    <div style="display:flex;gap:8px;align-items:center"><button class="new-game-btn btn" style="background:rgba(255,255,255,.1);color:var(--dim);border:1px solid var(--border);padding:8px 14px" onclick="refreshHistory()">↻</button><button class="new-game-btn btn" onclick="newGame()">+ New Game</button></div>
   </div>
   <div class="history-body">
     <div style="font-size:11px;color:var(--muted);text-align:center;padding:6px 0 10px" id="history-status">Loading games...</div>
