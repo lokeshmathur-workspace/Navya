@@ -461,6 +461,7 @@ function showLive() { showScr("scr-live"); renderLive(); }
 var editMode = false;
 var editGameId = null;
 var allGames = {};
+var hasChanges = false;
 
 async function refreshHistory(){
   var st=document.getElementById("history-status");
@@ -554,6 +555,7 @@ function editGame(gameId) {
   if (!g) { showToast("Game not found"); return; }
   editMode = true;
   editGameId = gameId;
+  hasChanges = false;
   game.opponent = g.opponent || "";
   game.type = g.type || "";
   game.date = g.date || "";
@@ -617,14 +619,45 @@ function renderEditFooter() {
   var footer = document.getElementById("live-footer");
   if (!footer) return;
   if (editMode) {
+    var saveStyle = hasChanges
+      ? "background:linear-gradient(135deg,#f0c040,#c8880a);color:#0a0c10;cursor:pointer;opacity:1"
+      : "background:var(--panel);color:var(--muted);cursor:not-allowed;opacity:.45;border:1px solid var(--border)";
     footer.innerHTML =
-      "<button class='fp btn' onclick='deleteCurrentSet()' style='border-color:rgba(255,107,91,.4);background:rgba(255,107,91,.1);color:var(--coral)'>🗑 Delete Set</button>"
-      +"<button class='fe btn' onclick='saveEditedGame()'>✅ Save Changes</button>";
+      "<button class='fp btn' onclick='exitEditMode()' style='border-color:var(--border);background:rgba(255,255,255,.05);color:var(--dim)'>✕ Close</button>"
+      +"<button class='fp btn' onclick='deleteCurrentSet()' style='border-color:rgba(255,107,91,.4);background:rgba(255,107,91,.1);color:var(--coral)'>🗑 Delete Set</button>"
+      +"<button id='save-changes-btn' class='fe btn' style='grid-column:span 2;"+saveStyle+"'"
+      +(hasChanges ? "" : " disabled")
+      +" onclick='saveEditedGame()'>✅ Save Changes"+(hasChanges ? "" : " — no changes yet")+"</button>";
   } else {
     footer.innerHTML =
       "<button class='fp btn' onclick='saveProgress()'>☁ Save Progress</button>"
       +"<button class='fe btn' onclick='openEndSet()'>End Set →</button>";
   }
+}
+
+function updateSaveBtn() {
+  var btn = document.getElementById("save-changes-btn");
+  if (!btn) return;
+  if (hasChanges) {
+    btn.disabled = false;
+    btn.style.cssText = "grid-column:span 2;background:linear-gradient(135deg,#f0c040,#c8880a);color:#0a0c10;cursor:pointer;opacity:1;height:44px;border:none;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px";
+    btn.textContent = "✅ Save Changes";
+  } else {
+    btn.disabled = true;
+    btn.style.cssText = "grid-column:span 2;background:var(--panel);color:var(--muted);cursor:not-allowed;opacity:.45;border:1px solid var(--border);height:44px;border-radius:10px;font-size:12px;font-weight:700;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px";
+    btn.textContent = "✅ Save Changes — no changes yet";
+  }
+}
+
+function exitEditMode() {
+  if (hasChanges) {
+    if (!confirm("You have unsaved changes. Exit without saving?")) return;
+  }
+  editMode = false;
+  editGameId = null;
+  hasChanges = false;
+  buildHistory();
+  showScr("scr-history");
 }
 
 function deleteCurrentSet() {
@@ -634,11 +667,15 @@ function deleteCurrentSet() {
   game.sets.forEach(function(s,i){s.set_num=i+1;});
   if (curIdx >= game.sets.length) curIdx = game.sets.length - 1;
   tapHistory = tapHistory.filter(function(t){return t.idx !== curIdx;});
+  hasChanges = true;
   renderLive();
+  updateSaveBtn();
   showToast("Set deleted");
 }
 
 async function saveEditedGame() {
+  if (!hasChanges) { showToast("No changes to save"); return; }
+  if (!confirm("Save changes to " + game.opponent + "?")) return;
   showToast("Saving...");
   var payload = buildGamePayload(false);
   var gid = editGameId;
@@ -652,7 +689,7 @@ async function saveEditedGame() {
       allGames[gid] = payload;
     }
     showToast("Changes saved ✅");
-    editMode = false; editGameId = null;
+    editMode = false; editGameId = null; hasChanges = false;
     buildHistory();
     showScr("scr-history");
   } else {
@@ -721,6 +758,7 @@ function tap(stat, color) {
   document.getElementById("lasttap").textContent = "+ " + lbl;
   document.getElementById("undo-tag").textContent = "↩ " + lbl;
   renderCounts();
+  if (editMode) { hasChanges = true; updateSaveBtn(); }
   saveDraft();
 }
 
@@ -734,6 +772,7 @@ function undo() {
     "↩ " + STAT_LABELS[tapHistory[tapHistory.length-1].stat][tapHistory[tapHistory.length-1].color] :
     "nothing yet";
   renderCounts();
+  if (editMode) { hasChanges = true; updateSaveBtn(); }
   saveDraft();
 }
 
