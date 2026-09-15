@@ -205,7 +205,7 @@ input:focus,textarea:focus{border-color:var(--gold)}
 <!-- LIVE SCREEN -->
 <div class="screen" id="scr-live">
   <div class="live-hdr">
-    <div class="hdr-lbl">⚡ Game Logger · Live</div>
+    <div style="display:flex;align-items:center;gap:8px"><div class="hdr-lbl" id="hdr-lbl">⚡ Game Logger · Live</div><span id="edit-badge" style="display:none;background:rgba(240,192,64,.25);border:1px solid rgba(240,192,64,.6);border-radius:4px;padding:1px 8px;font-size:9px;font-weight:700;color:#f0c040;font-family:monospace;letter-spacing:1px">EDITING</span></div>
     <div class="set-nav">
       <button class="arr btn" id="arr-prev" onclick="prevSet()">◀</button>
       <div class="set-mid">
@@ -216,7 +216,7 @@ input:focus,textarea:focus{border-color:var(--gold)}
     </div>
     <div class="hdr-info">
       <span class="hdr-game" id="hdr-game-info"></span>
-      <span class="save-chip btn" onclick="saveProgress()">💾 Save Draft</span>
+      <span class="save-chip btn" id="save-chip-btn" onclick="saveProgress()">💾 Save Draft</span>
     </div>
   </div>
 
@@ -760,11 +760,14 @@ function renderLive() {
     ? curIdx >= game.sets.length - 1
     : (!curSet().finalized && curIdx === game.sets.length - 1);
   var isLive = !editMode && curIdx === game.sets.length - 1 && !curSet().finalized;
-  document.getElementById("hdr-lbl").textContent = isLive ? "⚡ Game Logger · Live"
+  var hlbl = document.getElementById("hdr-lbl");
+  if (hlbl) hlbl.textContent = isLive ? "⚡ Game Logger · Live"
     : editMode ? "✏️ Editing: " + game.opponent
     : "👁 Viewing Set " + s.set_num + " — tap ▶ to return";
   var eb = document.getElementById("edit-badge");
   if(eb) eb.style.display = editMode ? "inline-block" : "none";
+  var sc = document.getElementById("save-chip-btn");
+  if(sc) sc.textContent = editMode ? "✏️ Edit Mode" : "💾 Save Draft";
   renderCounts();
   document.getElementById("lasttap").textContent = s.finalized ? "✅ Set " + s.set_num + " finalized" : "";
   document.getElementById("undo-tag").textContent = tapHistory.length ?
