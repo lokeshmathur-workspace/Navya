@@ -126,10 +126,56 @@
       "type": "HS JV",
       "date": "2026-09-14",
       "wins": 0,
-      "losses": 0,
+      "losses": 1,
       "in_progress": true,
       "post_game": {},
-      "sets": []
+      "sets": [
+        {
+          "set_num": 1,
+          "result": "L",
+          "score_us": 21,
+          "score_them": 25,
+          "communication": "Quiet",
+          "body_language": "Dropped",
+          "setting": {
+            "r": 8,
+            "y": 8,
+            "g": 8
+          },
+          "dump": {
+            "r": 0,
+            "y": 1,
+            "g": 0
+          },
+          "blocks": {
+            "r": 0,
+            "y": 0,
+            "g": 0
+          },
+          "digs": {
+            "r": 2,
+            "y": 3,
+            "g": 1
+          },
+          "serving": {
+            "r": 0,
+            "y": 1,
+            "g": 2
+          },
+          "comm": {
+            "pos": 5,
+            "neg": 35
+          },
+          "assists": 8,
+          "set_errors": 8,
+          "dump_kills": 0,
+          "aces": 2,
+          "service_errors": 0,
+          "block_kills": 0,
+          "comm_positive": 5,
+          "comm_missed": 35
+        }
+      ]
     }
   }
 }
