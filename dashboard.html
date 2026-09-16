@@ -188,6 +188,7 @@ function buildSeason(){
   document.getElementById("s-comm").textContent=totSets?+(totComm/totSets).toFixed(1):0;
   document.getElementById("s-games").textContent=games.length;
   buildGameList();
+  buildAnalysis(getGames());
 }
 function buildGameList(){
   var games=getGames();
