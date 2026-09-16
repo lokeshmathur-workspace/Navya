@@ -152,6 +152,7 @@ function setFilter(el,f){
   document.querySelectorAll(".filter-btn").forEach(function(b){b.classList.remove("active");});
   el.classList.add("active");
   buildGameList();
+  buildAnalysis(getGames());
 }
 function getGames(){
   if(!ghData||!ghData.game_logs)return[];
@@ -391,6 +392,172 @@ function dToast(m){
     document.body.appendChild(t);}
   t.textContent=m;t.style.opacity="1";
   setTimeout(function(){t.style.opacity="0";},2500);
+}
+
+
+// ── Coach Analysis & Trend Charts ──────────────────────────────────────────
+function buildAnalysis(games) {
+  var el = document.getElementById("coach-analysis");
+  var tc = document.getElementById("trend-charts");
+  if (!el || !tc) return;
+  if (!games.length) { el.innerHTML=""; tc.innerHTML=""; return; }
+  var sorted = games.slice().sort(function(a,b){return a.date.localeCompare(b.date);});
+  var gs = sorted.map(function(g){
+    var sets = g.sets||[], n=sets.length||1;
+    function sv(s,f,obj,c){return s[f]!=null?+s[f]:(s[obj]&&s[obj][c]!=null?+s[obj][c]:0);}
+    var ast=0,err=0,okS=0,aces=0,sErr=0,okSv=0,dK=0,bK=0,cp=0,cm=0;
+    sets.forEach(function(s){
+      ast+=sv(s,"assists","setting","g"); err+=sv(s,"set_errors","setting","r");
+      okS+=s.setting?(s.setting.y||0):0;
+      aces+=sv(s,"aces","serving","g"); sErr+=sv(s,"service_errors","serving","r");
+      okSv+=s.serving?(s.serving.y||0):0;
+      dK+=sv(s,"dump_kills","dump","g"); bK+=sv(s,"block_kills","blocks","g");
+      cp+=sv(s,"comm_positive","comm","pos"); cm+=sv(s,"comm_missed","comm","neg");
+    });
+    var tS=ast+err+okS, tSv=aces+sErr+okSv;
+    var sn = g.opponent.replace(/^(vs|vs\.|against)\s*/i,"").split(" ")[0];
+    return {
+      label:sn.slice(0,6), date:g.date, opponent:g.opponent,
+      wins:g.wins||0, losses:g.losses||0,
+      greatPct:tS>0?Math.round(ast/tS*100):0,
+      errPct:tS>0?Math.round(err/tS*100):0,
+      acePct:tSv>0?Math.round(aces/tSv*100):0,
+      sErrPct:tSv>0?Math.round(sErr/tSv*100):0,
+      commRatio:(cp+cm)>0?Math.round(cp/(cp+cm)*100):0,
+      astPS:Math.round(ast/n*10)/10, errPS:Math.round(err/n*10)/10,
+      dK:dK, bK:bK, cp:cp, cm:cm, n:n, ast:ast, err:err, aces:aces, sErr:sErr
+    };
+  });
+  buildTrendCharts(gs);
+  buildCommentary(gs);
+}
+
+function buildTrendCharts(gs) {
+  var tc = document.getElementById("trend-charts");
+  if (gs.length < 2){
+    tc.innerHTML="<div style='text-align:center;padding:12px;color:var(--muted);font-size:11px'>Play 2+ games to see performance trends</div>";
+    return;
+  }
+  var charts=[
+    {title:"🏐 Setting — Great Set %", key:"greatPct", color:"#4ecba0", unit:"%", invert:false},
+    {title:"❌ Setting — Error %",      key:"errPct",  color:"#ff4444", unit:"%", invert:true},
+    {title:"💫 Serving — Ace %",        key:"acePct",  color:"#f0c040", unit:"%", invert:false},
+    {title:"🗣️ Communication — Positive %", key:"commRatio", color:"#4a9eff", unit:"%", invert:false}
+  ];
+  var html="<div style='font-size:9px;color:var(--dim);font-family:monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px'>📈 Performance Trends — "+gs.length+" games</div>";
+  html+="<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px'>";
+  charts.forEach(function(ch){
+    var vals=gs.map(function(g){return g[ch.key];});
+    var mx=Math.max.apply(null,vals.concat([1]));
+    var mn=Math.min.apply(null,vals);
+    var rng=mx-mn||1;
+    var first=vals[0], last=vals[vals.length-1];
+    var diff=last-first;
+    var good=ch.invert?diff<0:diff>0;
+    var tc2=Math.abs(diff)<3?"var(--muted)":good?"#4ecba0":"#ff6b5b";
+    var arrow=Math.abs(diff)<3?"→":diff>0?"↑":"↓";
+    var bw=18, gap=5, svgH=52;
+    var svgW=gs.length*(bw+gap)+gap;
+    var bars=vals.map(function(v,i){
+      var h=Math.max(3,Math.round((v-mn)/rng*(svgH-8)));
+      var x=gap+i*(bw+gap), y=svgH-h;
+      return "<rect x='"+x+"' y='"+y+"' width='"+bw+"' height='"+h+"' rx='2' fill='"+ch.color+"' opacity='0.75'/>"+
+             "<text x='"+(x+bw/2)+"' y='"+(svgH+11)+"' text-anchor='middle' font-size='7' fill='#4a5568' font-family='monospace'>"+
+             gs[i].label+"</text>"+
+             "<text x='"+(x+bw/2)+"' y='"+(y-2)+"' text-anchor='middle' font-size='7' fill='"+ch.color+"' font-family='monospace'>"+v+"</text>";
+    }).join("");
+    html+="<div style='background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px'>"+
+      "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:4px'>"+
+      "<span style='font-size:9px;font-weight:700;color:var(--text)'>"+ch.title+"</span>"+
+      "<span style='font-size:11px;font-weight:800;color:"+tc2+"'>"+arrow+" "+(diff>=0?"+":"")+Math.round(diff)+""+ch.unit+"</span>"+
+      "</div>"+
+      "<svg width='100%' viewBox='0 0 "+(svgW)+" "+(svgH+16)+"' preserveAspectRatio='none'>"+bars+"</svg>"+
+      "</div>";
+  });
+  html+="</div>";
+  document.getElementById("trend-charts").innerHTML=html;
+}
+
+function buildCommentary(gs) {
+  var el=document.getElementById("coach-analysis");
+  if (!el) return;
+  if (!gs.length){el.innerHTML="";return;}
+  var n=gs.length, latest=gs[n-1], first=gs[0];
+  var totalW=gs.reduce(function(s,g){return s+g.wins;},0);
+  var totalL=gs.reduce(function(s,g){return s+g.losses;},0);
+  var avgErr=Math.round(gs.reduce(function(s,g){return s+g.errPct;},0)/n);
+  var avgAce=Math.round(gs.reduce(function(s,g){return s+g.acePct;},0)/n);
+  var avgComm=Math.round(gs.reduce(function(s,g){return s+g.commRatio;},0)/n);
+  var avgAst=Math.round(gs.reduce(function(s,g){return s+g.astPS;},0)/n*10)/10;
+  var avgDump=Math.round(gs.reduce(function(s,g){return s+g.dK;},0)/n*10)/10;
+  var positives=[], insights=[], focus=[];
+
+  // Setting
+  var sTrend=n>1?latest.greatPct-first.greatPct:0;
+  var eTrend=n>1?latest.errPct-first.errPct:0;
+  if(latest.greatPct>=45)positives.push("Setting quality — "+latest.greatPct+"% great sets in last game");
+  if(sTrend>8)insights.push("Setting accuracy is climbing — great sets improved "+first.greatPct+"%→"+latest.greatPct+"% over the season. The footwork drills are paying off.");
+  else if(sTrend<-8)insights.push("Great set rate has slipped from "+first.greatPct+"% to "+latest.greatPct+"%. This usually signals rushing through footwork — focus on stopping before the set, not on the move.");
+  if(latest.errPct>30){
+    insights.push("Setting errors at "+latest.errPct+"% (target: <20%). High error rate in games usually comes from 3 causes: tight passes forcing improvised sets, late footwork arrival, or overreaching for back-sets on bad passes. Track which situations cause your reds.");
+    focus.push("Error reduction — 500 reps of 'difficult pass → safe set' decision: if the pass is off the antenna by more than 1 metre, call 'help' and push a simple on-target set rather than attempting a running back-set.");
+  } else if(latest.errPct<18)positives.push("Low setting error rate ("+latest.errPct+"%) — clean hands and good decisions");
+
+  // Serving
+  if(latest.sErrPct>28){
+    insights.push("Service errors at "+latest.sErrPct+"% are giving away free points. "+(latest.acePct>15?"The aggression is creating aces too, so evaluate the trade-off per match — if aces>errors, stay aggressive; if not, add 5% more net clearance.":"With aces at only "+latest.acePct+"%, you're not getting the reward for the risk — pull back 1 metre behind the line and aim at seams rather than lines."));
+    if(latest.acePct<=latest.sErrPct)focus.push("Serving consistency — '10 in-a-row' drill: must hit 10 consecutive serves to a target zone before moving. Do this at the start of every practice before adrenaline kicks in.");
+  }
+  if(latest.acePct>=20)positives.push("Serving weapon — "+latest.acePct+"% ace rate is excellent");
+  if(n>1&&latest.acePct-first.acePct>8)insights.push("Serving is developing into a genuine weapon — ace rate has risen "+first.acePct+"%→"+latest.acePct+"%. Start mixing short-angle serves with your deep corners to keep passers guessing.");
+
+  // Communication
+  if(latest.commRatio<40){
+    insights.push("Communication ratio is "+latest.commRatio+"% positive — reset misses and body drops are outpacing positive calls. In volleyball, the setter sets the emotional tempo. After every error, the team looks to you. Build a habit: error happens → immediately call next server's name + 'next ball, let's go.'");
+    focus.push("Leadership reps — whole-practice rule: zero silent rallies. Call every ball: 'mine', 'yours', 'pipe', 'left'. Coach tracks silent plays; target is under 3 per practice session by next game.");
+  } else if(latest.commRatio>=65)positives.push("Communication leadership — "+latest.commRatio+"% positive ratio is elite-level");
+  if(n>1&&latest.commRatio-first.commRatio<-15)insights.push("Communication positivity has dropped "+first.commRatio+"%→"+latest.commRatio+"%. This often happens when match pressure increases mid-season. Review game footage for body-language moments and identify the specific plays that trigger them.");
+
+  // Dumps
+  if(avgDump<0.8){
+    insights.push("Dump kills are averaging only "+avgDump+" per game — this attack is underutilised. Blockers are not watching the setter as a threat, which means the 2nd-ball dump is open, especially when you approach from the right side on a tight pass.");
+    focus.push("Dump kill development — 15 min per practice: setter approaches as if setting, reads block position, and dumps on 2nd contact to spots 1 and 9. Target: 1 kill per set by end of season.");
+  } else if(avgDump>=2)positives.push("Dump attacks — "+avgDump+" kills/game keeps blockers honest");
+
+  // Overall record context
+  if(totalW>totalL)insights.push("The "+totalW+"-"+totalL+" record reflects the effort — keep the standard high in practice and the results will continue.");
+  else if(totalL>totalW)insights.push("At "+totalW+"-"+totalL+" there is clear room to grow. The stats show specific, fixable gaps — error rate and communication are the highest-leverage levers at this stage.");
+
+  // Build HTML
+  var html="";
+  html+="<div style='font-size:9px;color:var(--coral);font-family:monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px'>⚡ Coach Analysis · "+n+" game"+(n>1?"s":"")+" · "+totalW+"W–"+totalL+"L</div>";
+
+  if(positives.length){
+    html+="<div style='background:rgba(78,203,160,.07);border:1px solid rgba(78,203,160,.22);border-left:3px solid #4ecba0;border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:8px'>";
+    html+="<div style='font-size:10px;font-weight:700;color:#4ecba0;margin-bottom:5px;letter-spacing:.5px'>✅ WHAT'S WORKING</div>";
+    html+="<div style='font-size:12px;color:var(--dim);line-height:1.7'>"+positives.join(" · ")+".</div></div>";
+  }
+  if(insights.length){
+    html+="<div style='background:rgba(240,192,64,.05);border:1px solid rgba(240,192,64,.2);border-left:3px solid #f0c040;border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:8px'>";
+    html+="<div style='font-size:10px;font-weight:700;color:var(--gold);margin-bottom:6px;letter-spacing:.5px'>📊 KEY OBSERVATIONS</div>";
+    insights.forEach(function(ins){
+      html+="<div style='font-size:12px;color:var(--dim);line-height:1.7;margin-bottom:5px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.04)'>"+ins+"</div>";
+    });
+    html+="</div>";
+  }
+  if(focus.length){
+    html+="<div style='background:rgba(255,107,91,.05);border:1px solid rgba(255,107,91,.2);border-left:3px solid #ff6b5b;border-radius:0 8px 8px 0;padding:10px 12px'>";
+    html+="<div style='font-size:10px;font-weight:700;color:var(--coral);margin-bottom:6px;letter-spacing:.5px'>🎯 PRACTICE FOCUS — BEFORE NEXT MATCH</div>";
+    focus.forEach(function(f,i){
+      html+="<div style='font-size:12px;color:var(--dim);line-height:1.7;margin-bottom:6px;display:flex;gap:10px'>";
+      html+="<span style='color:var(--coral);font-weight:800;font-size:14px;flex-shrink:0'>"+(i+1)+".</span><span>"+f+"</span></div>";
+    });
+    html+="</div>";
+  }
+  if(!insights.length&&!focus.length&&!positives.length){
+    html+="<div style='font-size:12px;color:var(--muted);text-align:center;padding:12px'>Log at least 2 complete games to unlock coach analysis.</div>";
+  }
+  el.innerHTML=html;
 }
 
 async function init(){
