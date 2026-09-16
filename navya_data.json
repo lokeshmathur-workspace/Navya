@@ -468,7 +468,7 @@
           },
           "comm": {
             "pos": 0,
-            "neg": 37
+            "neg": 38
           },
           "assists": 15,
           "set_errors": 4,
@@ -477,7 +477,7 @@
           "service_errors": 1,
           "block_kills": 0,
           "comm_positive": 0,
-          "comm_missed": 37
+          "comm_missed": 38
         },
         {
           "set_num": 2,
