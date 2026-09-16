@@ -281,7 +281,53 @@
       "losses": 0,
       "in_progress": true,
       "post_game": {},
-      "sets": []
+      "sets": [
+        {
+          "set_num": 1,
+          "result": "?",
+          "score_us": 0,
+          "score_them": 0,
+          "communication": "",
+          "body_language": "",
+          "setting": {
+            "r": 4,
+            "y": 9,
+            "g": 15
+          },
+          "dump": {
+            "r": 0,
+            "y": 0,
+            "g": 0
+          },
+          "blocks": {
+            "r": 1,
+            "y": 0,
+            "g": 0
+          },
+          "digs": {
+            "r": 4,
+            "y": 1,
+            "g": 2
+          },
+          "serving": {
+            "r": 1,
+            "y": 1,
+            "g": 1
+          },
+          "comm": {
+            "pos": 0,
+            "neg": 37
+          },
+          "assists": 15,
+          "set_errors": 4,
+          "dump_kills": 0,
+          "aces": 1,
+          "service_errors": 1,
+          "block_kills": 0,
+          "comm_positive": 0,
+          "comm_missed": 37
+        }
+      ]
     }
   }
 }
