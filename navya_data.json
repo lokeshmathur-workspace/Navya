@@ -272,6 +272,16 @@
           "comm_missed": 27
         }
       ]
+    },
+    "draft_2026-09-15_Redmond_hi": {
+      "opponent": "Redmond highschool",
+      "type": "HS JV",
+      "date": "2026-09-15",
+      "wins": 0,
+      "losses": 0,
+      "in_progress": true,
+      "post_game": {},
+      "sets": []
     }
   }
 }
