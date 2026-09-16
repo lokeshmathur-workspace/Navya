@@ -278,15 +278,21 @@
       "type": "HS JV",
       "date": "2026-09-15",
       "wins": 1,
-      "losses": 0,
-      "in_progress": true,
-      "post_game": {},
+      "losses": 1,
+      "in_progress": false,
+      "post_game": {
+        "energy_start": 0,
+        "energy_end": 0,
+        "composure": 0,
+        "coach_feedback": "",
+        "focus_area": ""
+      },
       "sets": [
         {
           "set_num": 1,
-          "result": "?",
-          "score_us": 0,
-          "score_them": 0,
+          "result": "L",
+          "score_us": 21,
+          "score_them": 25,
           "communication": "",
           "body_language": "",
           "setting": {
