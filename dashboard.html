@@ -439,48 +439,93 @@ function buildAnalysis(games) {
 
 function buildTrendCharts(gs) {
   var tc = document.getElementById("trend-charts");
-  if (gs.length < 2){
-    tc.innerHTML="<div style='text-align:center;padding:12px;color:var(--muted);font-size:11px'>Play 2+ games to see performance trends</div>";
+  if (!tc) return;
+  if (gs.length < 2) {
+    tc.innerHTML = "<div style='text-align:center;padding:10px;color:var(--muted);font-size:11px'>Play 2+ games to see trends</div>";
     return;
   }
-  var charts=[
-    {title:"🏐 Setting — Great Set %", key:"greatPct", color:"#4ecba0", unit:"%", invert:false},
-    {title:"❌ Setting — Error %",      key:"errPct",  color:"#ff4444", unit:"%", invert:true},
-    {title:"💫 Serving — Ace %",        key:"acePct",  color:"#f0c040", unit:"%", invert:false},
-    {title:"🗣️ Communication — Positive %", key:"commRatio", color:"#4a9eff", unit:"%", invert:false}
+  var charts = [
+    {title:"🏐 Setting — Great Set %", key:"greatPct", color:"#4ecba0", invert:false},
+    {title:"❌ Setting — Error %",      key:"errPct",  color:"#ff4444", invert:true},
+    {title:"💫 Serving — Ace %",        key:"acePct",  color:"#f0c040", invert:false},
+    {title:"🗣️ Comm — Positive %",      key:"commRatio",color:"#4a9eff", invert:false}
   ];
-  var html="<div style='font-size:9px;color:var(--dim);font-family:monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px'>📈 Performance Trends — "+gs.length+" games</div>";
+  var W=320, H=72, PAD=8;
+  var html="<div style='font-size:9px;color:var(--dim);font-family:monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px'>📈 Performance Trends · "+gs.length+" games</div>";
   html+="<div style='display:grid;grid-template-columns:1fr 1fr;gap:8px'>";
   charts.forEach(function(ch){
     var vals=gs.map(function(g){return g[ch.key];});
-    var mx=Math.max.apply(null,vals.concat([1]));
-    var mn=Math.min.apply(null,vals);
+    var n=vals.length;
+    var mx=Math.max.apply(null,vals); var mn=Math.min.apply(null,vals);
     var rng=mx-mn||1;
-    var first=vals[0], last=vals[vals.length-1];
+    var first=vals[0], last=vals[n-1];
     var diff=last-first;
-    var good=ch.invert?diff<0:diff>0;
-    var tc2=Math.abs(diff)<3?"var(--muted)":good?"#4ecba0":"#ff6b5b";
-    var arrow=Math.abs(diff)<3?"→":diff>0?"↑":"↓";
-    var bw=18, gap=5, svgH=52;
-    var svgW=gs.length*(bw+gap)+gap;
-    var bars=vals.map(function(v,i){
-      var h=Math.max(3,Math.round((v-mn)/rng*(svgH-8)));
-      var x=gap+i*(bw+gap), y=svgH-h;
-      return "<rect x='"+x+"' y='"+y+"' width='"+bw+"' height='"+h+"' rx='2' fill='"+ch.color+"' opacity='0.75'/>"+
-             "<text x='"+(x+bw/2)+"' y='"+(svgH+11)+"' text-anchor='middle' font-size='7' fill='#4a5568' font-family='monospace'>"+
-             gs[i].label+"</text>"+
-             "<text x='"+(x+bw/2)+"' y='"+(y-2)+"' text-anchor='middle' font-size='7' fill='"+ch.color+"' font-family='monospace'>"+v+"</text>";
+    var good=ch.invert?diff<=0:diff>=0;
+    var steady=Math.abs(diff)<3;
+    var tCol=steady?"var(--muted)":good?"#4ecba0":"#ff6b5b";
+    var arrow=steady?"→":diff>0?"↑":"↓";
+
+    // Build line path points
+    function px(i){return PAD + i*(W-2*PAD)/(n-1);}
+    function py(v){return PAD + (1-(v-mn)/rng)*(H-2*PAD);}
+
+    var linePts=vals.map(function(v,i){return px(i)+","+py(v);}).join(" ");
+    var fillPts="M"+px(0)+","+H+" L"+vals.map(function(v,i){return px(i)+","+py(v);}).join(" L")+" L"+px(n-1)+","+H+" Z";
+
+    // Rolling 3-game avg line
+    var avgPts="";
+    if(n>=3){
+      var ap=[];
+      for(var i=2;i<n;i++){
+        var avg=(vals[i]+vals[i-1]+vals[i-2])/3;
+        ap.push(px(i)+","+py(avg));
+      }
+      avgPts=ap.join(" ");
+    }
+
+    // Dots and value labels
+    var dots=vals.map(function(v,i){
+      var isLatest=i===n-1, isFirst=i===0;
+      var r=isLatest?4:2.5;
+      var label="";
+      if(isLatest||isFirst||n<=6){
+        var ly=py(v)>(H/2+10)?py(v)-8:py(v)+14;
+        label="<text x='"+px(i)+"' y='"+ly+"' text-anchor='middle' font-size='8' font-weight='"+(isLatest?"700":"400")+"' fill='"+(isLatest?ch.color:"rgba(255,255,255,.4)")+"' font-family='monospace'>"+v+"%</text>";
+      }
+      return "<circle cx='"+px(i)+"' cy='"+py(v)+"' r='"+r+"' fill='"+(isLatest?ch.color:"rgba(255,255,255,.3)")+"' stroke='"+ch.color+"' stroke-width='1.5'/>"+label;
     }).join("");
-    html+="<div style='background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px'>"+
-      "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:4px'>"+
-      "<span style='font-size:9px;font-weight:700;color:var(--text)'>"+ch.title+"</span>"+
-      "<span style='font-size:11px;font-weight:800;color:"+tc2+"'>"+arrow+" "+(diff>=0?"+":"")+Math.round(diff)+""+ch.unit+"</span>"+
-      "</div>"+
-      "<svg width='100%' viewBox='0 0 "+(svgW)+" "+(svgH+16)+"' preserveAspectRatio='none'>"+bars+"</svg>"+
-      "</div>";
+
+    // Game labels on X axis (show G1, G2... for readability)
+    var xLabels=gs.map(function(g,i){
+      if(n<=8||(i===0||i===n-1||i===Math.floor(n/2))){
+        return "<text x='"+px(i)+"' y='"+(H+14)+"' text-anchor='middle' font-size='7' fill='#4a5568' font-family='monospace'>G"+(i+1)+"</text>";
+      }
+      return "";
+    }).join("");
+
+    html+="<div style='background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px'>"
+      +"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:4px'>"
+      +"<span style='font-size:9px;font-weight:700;color:var(--text)'>"+ch.title+"</span>"
+      +"<span style='font-size:11px;font-weight:800;color:"+tCol+"'>"+arrow+" "+(diff>=0?"+":"")+Math.round(diff)+"%</span>"
+      +"</div>"
+      +"<svg width='100%' viewBox='0 0 "+W+" "+(H+18)+"' preserveAspectRatio='none'>"
+      // Fill area
+      +"<path d='"+fillPts+"' fill='"+ch.color+"' opacity='0.07'/>"
+      // Rolling avg
+      +(avgPts?"<polyline points='"+avgPts+"' fill='none' stroke='"+ch.color+"' stroke-width='1' stroke-opacity='0.35' stroke-dasharray='4,3'/>":"")
+      // Main line
+      +"<polyline points='"+linePts+"' fill='none' stroke='"+ch.color+"' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>"
+      // Dots + labels
+      +dots+xLabels
+      +"</svg>"
+      +"<div style='display:flex;justify-content:space-between;font-size:9px;color:var(--muted);font-family:monospace;margin-top:2px'>"
+      +"<span>G1: <b style='color:"+ch.color+"'>"+first+"%</b></span>"
+      +"<span>Latest: <b style='color:"+ch.color+"'>"+last+"%</b></span>"
+      +"</div>"
+      +"</div>";
   });
   html+="</div>";
-  document.getElementById("trend-charts").innerHTML=html;
+  tc.innerHTML=html;
 }
 
 function buildCommentary(gs) {
