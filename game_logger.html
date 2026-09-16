@@ -221,6 +221,19 @@ input:focus,textarea:focus{border-color:var(--gold)}
   </div>
 
   <div class="live-body">
+    <!-- Score editing row (edit mode only) -->
+    <div id="edit-score-section" style="display:none;background:var(--panel);border:1px solid rgba(240,192,64,.3);border-radius:8px;padding:8px 10px;margin-bottom:6px;flex-shrink:0">
+      <div style="font-size:9px;color:var(--gold);font-family:monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">✏️ Set Score &amp; Result</div>
+      <div style="display:flex;align-items:center;gap:8px;justify-content:center">
+        <div style="text-align:center"><div style="font-size:9px;color:var(--muted);margin-bottom:2px">OUR SCORE</div><input type="number" id="edit-score-us" min="0" max="35" value="0" style="width:56px;text-align:center;font-size:20px;font-weight:800;padding:6px 4px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:inherit" onchange="updateSetScore()"></div>
+        <span style="font-size:20px;color:var(--muted);font-weight:300">—</span>
+        <div style="text-align:center"><div style="font-size:9px;color:var(--muted);margin-bottom:2px">THEIR SCORE</div><input type="number" id="edit-score-them" min="0" max="35" value="0" style="width:56px;text-align:center;font-size:20px;font-weight:800;padding:6px 4px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:inherit" onchange="updateSetScore()"></div>
+        <div style="display:flex;flex-direction:column;gap:4px;margin-left:8px">
+          <button id="edit-w-btn" onclick="setEditResult('W')" style="padding:6px 14px;border-radius:6px;border:1px solid rgba(78,203,160,.4);background:rgba(78,203,160,.1);color:#4ecba0;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">W</button>
+          <button id="edit-l-btn" onclick="setEditResult('L')" style="padding:6px 14px;border-radius:6px;border:1px solid rgba(255,107,91,.4);background:rgba(255,107,91,.1);color:#ff6b5b;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit">L</button>
+        </div>
+      </div>
+    </div>
     <div class="computed">
       <div class="ci"><div class="cv" id="c-ast" style="color:#4ecba0">0</div><div class="cl">Assists</div></div>
       <div class="ci"><div class="cv" id="c-err" style="color:#ff4444">0</div><div class="cl">Set Err</div></div>
@@ -738,6 +751,43 @@ async function saveAndGoToHistory(){
   showScr("scr-history");
   renderEditFooter();
 }
+
+function updateSetScore() {
+  var s = curSet();
+  var us = parseInt(document.getElementById("edit-score-us").value);
+  var them = parseInt(document.getElementById("edit-score-them").value);
+  if (!isNaN(us)) s.score_us = us;
+  if (!isNaN(them)) s.score_them = them;
+  if (editMode) { hasChanges = true; updateSaveBtn(); saveDraft(); }
+}
+function setEditResult(r) {
+  var s = curSet();
+  s.result = r;
+  updateEditResultBtns();
+  if (editMode) { hasChanges = true; updateSaveBtn(); saveDraft(); }
+}
+function updateEditResultBtns() {
+  var s = curSet();
+  var w = document.getElementById("edit-w-btn");
+  var l = document.getElementById("edit-l-btn");
+  if (!w || !l) return;
+  w.style.opacity = s.result === "W" ? "1" : "0.35";
+  w.style.fontWeight = s.result === "W" ? "800" : "400";
+  l.style.opacity = s.result === "L" ? "1" : "0.35";
+  l.style.fontWeight = s.result === "L" ? "800" : "400";
+}
+function showEditScoreSection() {
+  var ess = document.getElementById("edit-score-section");
+  if (!ess) return;
+  ess.style.display = editMode ? "block" : "none";
+  if (editMode) {
+    var s = curSet();
+    document.getElementById("edit-score-us").value = s.score_us || 0;
+    document.getElementById("edit-score-them").value = s.score_them || 0;
+    updateEditResultBtns();
+  }
+}
+
 function zeroDisplay(){
   ["setting","dump","blocks","digs","serving"].forEach(function(stat){
     ["r","y","g"].forEach(function(c){
@@ -807,6 +857,7 @@ function renderLive() {
   if(eb) eb.style.display = editMode ? "inline-block" : "none";
   var sc = document.getElementById("save-chip-btn");
   if(sc) sc.textContent = editMode ? "✏️ Edit Mode" : "💾 Save Draft";
+  showEditScoreSection();
   renderCounts();
   document.getElementById("lasttap").textContent = s.finalized ? "✅ Set " + s.set_num + " finalized" : "";
   document.getElementById("undo-tag").textContent = tapHistory.length ?

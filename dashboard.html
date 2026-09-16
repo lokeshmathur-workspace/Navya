@@ -155,8 +155,16 @@ function setFilter(el,f){
 }
 function getGames(){
   if(!ghData||!ghData.game_logs)return[];
+  var seen={};
   return Object.entries(ghData.game_logs)
     .map(function(e){return Object.assign({id:e[0]},e[1]);})
+    .filter(function(g){
+      if(g.in_progress)return false;
+      if(!g.opponent||!g.date)return false;
+      var key=g.date+'_'+g.opponent+'_'+g.type;
+      if(seen[key])return false;
+      seen[key]=true;return true;
+    })
     .sort(function(a,b){return b.date.localeCompare(a.date);});
 }
 function scol(s){return s>=80?"#4ecba0":s>=60?"#f0c040":s>=40?"#ff9955":"#ff6b5b";}
