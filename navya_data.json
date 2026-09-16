@@ -277,7 +277,7 @@
       "opponent": "Redmond highschool",
       "type": "HS JV",
       "date": "2026-09-15",
-      "wins": 1,
+      "wins": 2,
       "losses": 1,
       "in_progress": false,
       "post_game": {
@@ -335,9 +335,9 @@
         },
         {
           "set_num": 2,
-          "result": "?",
-          "score_us": 0,
-          "score_them": 0,
+          "result": "W",
+          "score_us": 25,
+          "score_them": 18,
           "communication": "",
           "body_language": "",
           "setting": {
