@@ -424,68 +424,6 @@
           "comm_missed": 36
         }
       ]
-    },
-    "game_2026-09-18_1789763243883": {
-      "opponent": "Test 2",
-      "type": "Club B",
-      "date": "2026-09-18",
-      "wins": 1,
-      "losses": 0,
-      "in_progress": false,
-      "post_game": {
-        "energy_start": 0,
-        "energy_end": 0,
-        "composure": 0,
-        "coach_feedback": "",
-        "focus_area": ""
-      },
-      "sets": [
-        {
-          "set_num": 1,
-          "result": "W",
-          "score_us": 25,
-          "score_them": 12,
-          "communication": "Quiet",
-          "body_language": "Steady",
-          "setting": {
-            "r": 1,
-            "y": 0,
-            "g": 1
-          },
-          "dump": {
-            "r": 1,
-            "y": 0,
-            "g": 0
-          },
-          "blocks": {
-            "r": 1,
-            "y": 1,
-            "g": 1
-          },
-          "digs": {
-            "r": 1,
-            "y": 1,
-            "g": 1
-          },
-          "serving": {
-            "r": 1,
-            "y": 1,
-            "g": 0
-          },
-          "comm": {
-            "pos": 0,
-            "neg": 4
-          },
-          "assists": 1,
-          "set_errors": 1,
-          "dump_kills": 0,
-          "aces": 0,
-          "service_errors": 1,
-          "block_kills": 1,
-          "comm_positive": 0,
-          "comm_missed": 4
-        }
-      ]
     }
   }
 }
