@@ -683,6 +683,16 @@
           "comm_missed": 11
         }
       ]
+    },
+    "draft_2026-09-19_Sammamish_": {
+      "opponent": "Sammamish bracket game 1",
+      "type": "HS JV",
+      "date": "2026-09-19",
+      "wins": 0,
+      "losses": 0,
+      "in_progress": true,
+      "post_game": {},
+      "sets": []
     }
   }
 }
