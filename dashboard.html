@@ -160,16 +160,20 @@ function setFilter(el,f){
 }
 function getGames(){
   if(!ghData||!ghData.game_logs)return[];
-  var seen={};
-  return Object.entries(ghData.game_logs)
-    .map(function(e){return Object.assign({id:e[0]},e[1]);})
-    .filter(function(g){
-      if(g.in_progress)return false;
-      if(!g.opponent||!g.date)return false;
-      var key=g.date+'_'+g.opponent+'_'+g.type;
-      if(seen[key])return false;
-      seen[key]=true;return true;
-    })
+  // First pass: collect all non-draft entries, keep the most complete per key
+  var best={};
+  Object.entries(ghData.game_logs).forEach(function(e){
+    var g=Object.assign({id:e[0]},e[1]);
+    if(g.in_progress)return;
+    if(!g.opponent||!g.date)return;
+    var key=g.date+'_'+g.opponent+'_'+g.type;
+    var existing=best[key];
+    // Keep whichever has more sets (more complete game)
+    var gSets=(g.sets||[]).length;
+    var eSets=existing?(existing.sets||[]).length:0;
+    if(!existing||gSets>eSets){best[key]=g;}
+  });
+  return Object.values(best)
     .sort(function(a,b){return b.date.localeCompare(a.date);});
 }
 function scol(s){return s>=80?"#4ecba0":s>=60?"#f0c040":s>=40?"#ff9955":"#ff6b5b";}
