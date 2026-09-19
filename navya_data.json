@@ -429,11 +429,57 @@
       "opponent": "Sammamish tournament game 1",
       "type": "HS JV",
       "date": "2026-09-26",
-      "wins": 0,
+      "wins": 1,
       "losses": 0,
       "in_progress": true,
       "post_game": {},
-      "sets": []
+      "sets": [
+        {
+          "set_num": 1,
+          "result": "W",
+          "score_us": 25,
+          "score_them": 15,
+          "communication": "Decent",
+          "body_language": "Steady",
+          "setting": {
+            "r": 2,
+            "y": 5,
+            "g": 10
+          },
+          "dump": {
+            "r": 1,
+            "y": 0,
+            "g": 0
+          },
+          "blocks": {
+            "r": 1,
+            "y": 1,
+            "g": 0
+          },
+          "digs": {
+            "r": 0,
+            "y": 1,
+            "g": 1
+          },
+          "serving": {
+            "r": 0,
+            "y": 2,
+            "g": 0
+          },
+          "comm": {
+            "pos": 6,
+            "neg": 17
+          },
+          "assists": 10,
+          "set_errors": 2,
+          "dump_kills": 0,
+          "aces": 0,
+          "service_errors": 0,
+          "block_kills": 0,
+          "comm_positive": 6,
+          "comm_missed": 17
+        }
+      ]
     }
   }
 }
