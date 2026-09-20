@@ -684,62 +684,6 @@
         }
       ]
     },
-    "draft_2026-09-19_Sammamish_": {
-      "opponent": "Sammamish bracket game 2",
-      "type": "HS JV",
-      "date": "2026-09-19",
-      "wins": 0,
-      "losses": 1,
-      "in_progress": true,
-      "post_game": {},
-      "sets": [
-        {
-          "set_num": 1,
-          "result": "L",
-          "score_us": 12,
-          "score_them": 25,
-          "communication": "Quiet",
-          "body_language": "Dropped",
-          "setting": {
-            "r": 5,
-            "y": 4,
-            "g": 10
-          },
-          "dump": {
-            "r": 0,
-            "y": 0,
-            "g": 0
-          },
-          "blocks": {
-            "r": 0,
-            "y": 2,
-            "g": 0
-          },
-          "digs": {
-            "r": 4,
-            "y": 1,
-            "g": 2
-          },
-          "serving": {
-            "r": 0,
-            "y": 2,
-            "g": 0
-          },
-          "comm": {
-            "pos": 2,
-            "neg": 21
-          },
-          "assists": 10,
-          "set_errors": 5,
-          "dump_kills": 0,
-          "aces": 0,
-          "service_errors": 0,
-          "block_kills": 0,
-          "comm_positive": 2,
-          "comm_missed": 21
-        }
-      ]
-    },
     "game_2026-09-19_1789858388922": {
       "opponent": "Sammamish bracket game 1",
       "type": "HS JV",
