@@ -897,6 +897,16 @@
           "comm_missed": 31
         }
       ]
+    },
+    "draft_2026-09-23_VS_Spartai": {
+      "opponent": "VS Spartains",
+      "type": "HS JV",
+      "date": "2026-09-23",
+      "wins": 0,
+      "losses": 0,
+      "in_progress": true,
+      "post_game": {},
+      "sets": []
     }
   }
 }
