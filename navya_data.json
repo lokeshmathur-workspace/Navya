@@ -998,6 +998,158 @@
           "comm_missed": 19
         }
       ]
+    },
+    "game_2026-09-23_1790213350960": {
+      "opponent": "VS Spartains",
+      "type": "HS JV",
+      "date": "2026-09-23",
+      "wins": 1,
+      "losses": 2,
+      "in_progress": false,
+      "post_game": {
+        "energy_start": 0,
+        "energy_end": 0,
+        "composure": 0,
+        "coach_feedback": "",
+        "focus_area": ""
+      },
+      "sets": [
+        {
+          "set_num": 1,
+          "result": "W",
+          "score_us": 25,
+          "score_them": 23,
+          "communication": "Decent",
+          "body_language": "Steady",
+          "setting": {
+            "r": 5,
+            "y": 6,
+            "g": 9
+          },
+          "dump": {
+            "r": 0,
+            "y": 1,
+            "g": 1
+          },
+          "blocks": {
+            "r": 1,
+            "y": 2,
+            "g": 1
+          },
+          "digs": {
+            "r": 4,
+            "y": 0,
+            "g": 2
+          },
+          "serving": {
+            "r": 1,
+            "y": 0,
+            "g": 2
+          },
+          "comm": {
+            "pos": 4,
+            "neg": 12
+          },
+          "assists": 9,
+          "set_errors": 5,
+          "dump_kills": 1,
+          "aces": 2,
+          "service_errors": 1,
+          "block_kills": 1,
+          "comm_positive": 4,
+          "comm_missed": 12
+        },
+        {
+          "set_num": 2,
+          "result": "L",
+          "score_us": 22,
+          "score_them": 25,
+          "communication": "Quiet",
+          "body_language": "Dropped",
+          "setting": {
+            "r": 2,
+            "y": 3,
+            "g": 0
+          },
+          "dump": {
+            "r": 0,
+            "y": 0,
+            "g": 0
+          },
+          "blocks": {
+            "r": 0,
+            "y": 0,
+            "g": 0
+          },
+          "digs": {
+            "r": 0,
+            "y": 0,
+            "g": 1
+          },
+          "serving": {
+            "r": 2,
+            "y": 0,
+            "g": 1
+          },
+          "comm": {
+            "pos": 4,
+            "neg": 19
+          },
+          "assists": 0,
+          "set_errors": 2,
+          "dump_kills": 0,
+          "aces": 1,
+          "service_errors": 2,
+          "block_kills": 0,
+          "comm_positive": 4,
+          "comm_missed": 19
+        },
+        {
+          "set_num": 3,
+          "result": "L",
+          "score_us": 20,
+          "score_them": 25,
+          "communication": "Quiet",
+          "body_language": "Dropped",
+          "setting": {
+            "r": 3,
+            "y": 3,
+            "g": 7
+          },
+          "dump": {
+            "r": 0,
+            "y": 1,
+            "g": 0
+          },
+          "blocks": {
+            "r": 0,
+            "y": 1,
+            "g": 0
+          },
+          "digs": {
+            "r": 4,
+            "y": 3,
+            "g": 4
+          },
+          "serving": {
+            "r": 1,
+            "y": 3,
+            "g": 0
+          },
+          "comm": {
+            "pos": 6,
+            "neg": 18
+          },
+          "assists": 7,
+          "set_errors": 3,
+          "dump_kills": 0,
+          "aces": 0,
+          "service_errors": 1,
+          "block_kills": 0,
+          "comm_positive": 6,
+          "comm_missed": 18
+        }
+      ]
     }
   }
 }
